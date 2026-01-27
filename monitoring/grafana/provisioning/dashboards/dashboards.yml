@@ -1,0 +1,16 @@
+# ====================================
+# Grafana Dashboards Configuration
+# ====================================
+
+apiVersion: 1
+
+providers:
+  - name: 'Credit Risk Dashboards'
+    orgId: 1
+    folder: ''
+    folderUid: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

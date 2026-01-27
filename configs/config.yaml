@@ -1,0 +1,144 @@
+# ====================================
+# Credit Risk Scoring Project
+# Configuration File
+# ====================================
+
+project:
+  name: "Credit Risk Scoring Pipeline"
+  version: "0.1.0"
+  author: "Daniela Samo"
+
+# -----------------
+# Paths
+# -----------------
+paths:
+  data:
+    raw: "data/raw"
+    processed: "data/processed"
+    features: "data/features"
+  models: "models"
+  logs: "logs"
+
+# -----------------
+# Data
+# -----------------
+data:
+  source: "kaggle"
+  competition: "home-credit-default-risk"
+  tables:
+    - name: "application_train"
+      filename: "application_train.csv"
+      target: "TARGET"
+    - name: "application_test"
+      filename: "application_test.csv"
+    - name: "bureau"
+      filename: "bureau.csv"
+    - name: "bureau_balance"
+      filename: "bureau_balance.csv"
+    - name: "previous_application"
+      filename: "previous_application.csv"
+    - name: "POS_CASH_balance"
+      filename: "POS_CASH_balance.csv"
+    - name: "credit_card_balance"
+      filename: "credit_card_balance.csv"
+    - name: "installments_payments"
+      filename: "installments_payments.csv"
+
+# -----------------
+# Database
+# -----------------
+database:
+  type: "postgresql"
+  host: "localhost"
+  port: 5432
+  name: "credit_risk"
+  user: "credit_user"
+  # password should be in .env file
+
+# -----------------
+# Model
+# -----------------
+model:
+  algorithm: "xgboost"
+  target: "TARGET"
+  random_state: 42
+  test_size: 0.2
+  validation_size: 0.2
+
+  # XGBoost hyperparameters (default)
+  xgboost:
+    max_depth: 6
+    learning_rate: 0.1
+    n_estimators: 200
+    min_child_weight: 1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    gamma: 0
+    reg_alpha: 0
+    reg_lambda: 1
+    scale_pos_weight: 1  # Will be computed based on class imbalance
+    objective: "binary:logistic"
+    eval_metric: "auc"
+    use_label_encoder: false
+
+# -----------------
+# Feature Engineering
+# -----------------
+features:
+  # Columns to drop (IDs, targets, etc.)
+  drop_columns:
+    - "SK_ID_CURR"
+    - "TARGET"
+
+  # Missing value threshold (drop if > 80% missing)
+  missing_threshold: 0.8
+
+  # Correlation threshold (drop if > 0.95 correlated)
+  correlation_threshold: 0.95
+
+  # Categorical encoding
+  encoding:
+    method: "label"  # or "onehot", "target"
+    max_cardinality: 10  # for onehot encoding
+
+# -----------------
+# API
+# -----------------
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  reload: false  # Set to true for development
+
+# -----------------
+# Streamlit
+# -----------------
+streamlit:
+  port: 8501
+  theme: "light"
+
+# -----------------
+# Airflow
+# -----------------
+airflow:
+  dag_id: "credit_risk_pipeline"
+  schedule_interval: "@daily"  # or None for manual trigger
+  start_date: "2026-01-01"
+  catchup: false
+
+# -----------------
+# Monitoring
+# -----------------
+monitoring:
+  prometheus:
+    port: 9090
+  grafana:
+    port: 3000
+
+# -----------------
+# Logging
+# -----------------
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/credit_risk.log"
