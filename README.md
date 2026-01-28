@@ -275,7 +275,7 @@ curl -X POST http://localhost:8000/predict \
 ## Documentation
 
 - [Étude du Projet](docs/01_ETUDE_PROJET.md) - Contexte métier, méthodologie, cadre réglementaire (Bâle II/III)
-- [Feuille de Route](docs/02_FEUILLE_DE_ROUTE.md) - Plan d'exécution détaillé phase par phase
+- [Rapport d'Avancement](docs/03_RAPPORT_AVANCEMENT.md) - Journal de bord, résultats, problèmes résolus, leçons apprises
 
 ---
 
@@ -292,8 +292,7 @@ pytest tests/ -v
 
 ## Auteur
 
-**Daniela Samo**
-Data Engineer
+**Daniela Samo** | Data Engineer
 
 ---
 
