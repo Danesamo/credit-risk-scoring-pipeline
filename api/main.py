@@ -5,7 +5,7 @@
 # Endpoints : /health, /predict, /explain
 # =============================================================================
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
 import joblib
@@ -14,6 +14,52 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import shap
+import time
+
+# Prometheus metrics
+from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+
+# =============================================================================
+# PROMETHEUS METRICS
+# =============================================================================
+
+# Compteurs
+REQUESTS_TOTAL = Counter(
+    'credit_risk_requests_total',
+    'Total number of requests',
+    ['endpoint', 'method', 'status']
+)
+
+PREDICTIONS_TOTAL = Counter(
+    'credit_risk_predictions_total',
+    'Total number of predictions made',
+    ['risk_level']
+)
+
+# Histogrammes (pour mesurer les latences)
+REQUEST_LATENCY = Histogram(
+    'credit_risk_request_latency_seconds',
+    'Request latency in seconds',
+    ['endpoint'],
+    buckets=[0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0, 2.5]
+)
+
+PREDICTION_LATENCY = Histogram(
+    'credit_risk_prediction_latency_seconds',
+    'Prediction latency in seconds',
+    buckets=[0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
+)
+
+# Jauges
+MODEL_LOADED = Gauge(
+    'credit_risk_model_loaded',
+    'Whether the model is loaded (1) or not (0)'
+)
+
+LAST_PREDICTION_PROBABILITY = Gauge(
+    'credit_risk_last_prediction_probability',
+    'Probability of the last prediction'
+)
 
 # =============================================================================
 # CONFIGURATION
@@ -76,6 +122,9 @@ def load_model():
     except Exception as e:
         print(f"  - Warning: SHAP explainer non initialisé: {e}")
         shap_explainer = None
+
+    # Mettre à jour la métrique Prometheus
+    MODEL_LOADED.set(1 if model is not None else 0)
 
     print("Modèle prêt!")
 
@@ -160,6 +209,30 @@ async def startup_event():
     load_model()
 
 
+# Middleware pour mesurer la latence des requêtes
+@app.middleware("http")
+async def track_request_metrics(request: Request, call_next):
+    """Middleware pour tracker les métriques de chaque requête."""
+    start_time = time.time()
+
+    # Exécuter la requête
+    response = await call_next(request)
+
+    # Calculer la latence
+    latency = time.time() - start_time
+
+    # Enregistrer les métriques (sauf pour /metrics pour éviter la récursion)
+    if request.url.path != "/metrics":
+        endpoint = request.url.path
+        method = request.method
+        status = response.status_code
+
+        REQUESTS_TOTAL.labels(endpoint=endpoint, method=method, status=status).inc()
+        REQUEST_LATENCY.labels(endpoint=endpoint).observe(latency)
+
+    return response
+
+
 # =============================================================================
 # ENDPOINTS
 # =============================================================================
@@ -173,9 +246,25 @@ async def root():
             "/health": "Vérifier l'état de l'API",
             "/predict": "Prédire le risque d'un client (POST)",
             "/explain": "Expliquer la prédiction avec SHAP (POST)",
+            "/metrics": "Métriques Prometheus (GET)",
             "/docs": "Documentation Swagger"
         }
     }
+
+
+@app.get("/metrics", tags=["Monitoring"])
+async def metrics():
+    """
+    Expose les métriques Prometheus.
+
+    Métriques disponibles:
+    - credit_risk_requests_total: Nombre total de requêtes
+    - credit_risk_predictions_total: Nombre de prédictions par niveau de risque
+    - credit_risk_request_latency_seconds: Latence des requêtes
+    - credit_risk_prediction_latency_seconds: Latence des prédictions
+    - credit_risk_model_loaded: État du modèle (1=chargé, 0=non)
+    """
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
@@ -213,6 +302,9 @@ async def predict(client: ClientData):
     """
     if model is None:
         raise HTTPException(status_code=503, detail="Modèle non chargé")
+
+    # Mesurer le temps de prédiction
+    prediction_start = time.time()
 
     try:
         # Convertir les données client en dictionnaire
@@ -281,6 +373,12 @@ async def predict(client: ClientData):
         # Score de crédit (inverse de la probabilité, échelle 300-850)
         score = int(850 - (proba * 550))
         score = max(300, min(850, score))  # Borner entre 300 et 850
+
+        # Enregistrer les métriques Prometheus
+        prediction_latency = time.time() - prediction_start
+        PREDICTION_LATENCY.observe(prediction_latency)
+        PREDICTIONS_TOTAL.labels(risk_level=risk_level).inc()
+        LAST_PREDICTION_PROBABILITY.set(proba)
 
         return PredictionResponse(
             probability=round(proba, 4),

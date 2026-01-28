@@ -7,12 +7,13 @@
 
 import streamlit as st
 import requests
+import os
 
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
 
-API_URL = "http://localhost:8000"
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 # Taux de conversion vers EUR (base)
 EXCHANGE_RATES = {

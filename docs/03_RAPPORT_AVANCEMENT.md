@@ -866,9 +866,538 @@ Pas de jargon technique, pas de valeurs SHAP brutes - uniquement des explication
 
 # PHASE 6 : ORCHESTRATION & MONITORING
 
-**Statut :** ⬜ À faire
+**Statut :** ✅ Terminé | **Date :** 28/01/2026
 
-*(À compléter)*
+## 6.1 Vue d'ensemble
+
+La Phase 6 ajoute une couche de **monitoring et orchestration** au système de scoring crédit :
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        ARCHITECTURE PHASE 6                         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│   ┌─────────┐     ┌─────────┐     ┌─────────────┐                  │
+│   │Streamlit│────►│   API   │────►│  PostgreSQL │                  │
+│   │  :8501  │     │  :8000  │     │   :5432     │                  │
+│   └─────────┘     └────┬────┘     └─────────────┘                  │
+│                        │                                            │
+│                        │ /metrics                                   │
+│                        ▼                                            │
+│   ┌─────────────────────────────────────────────────────────┐      │
+│   │                    PROMETHEUS :9090                      │      │
+│   │  Collecte les métriques toutes les 15 secondes          │      │
+│   │  • Combien de requêtes ? (Counter)                      │      │
+│   │  • Quelle latence ? (Histogram → P50, P95, P99)         │      │
+│   │  • Le modèle est-il chargé ? (Gauge)                    │      │
+│   └───────────────────────┬─────────────────────────────────┘      │
+│                           │                                         │
+│                           ▼                                         │
+│   ┌─────────────────────────────────────────────────────────┐      │
+│   │                     GRAFANA :3000                        │      │
+│   │  Affiche les métriques sous forme de graphiques         │      │
+│   │  • Tableaux de bord visuels                             │      │
+│   │  • Alertes configurables                                │      │
+│   └─────────────────────────────────────────────────────────┘      │
+│                                                                     │
+│   ┌─────────────────────────────────────────────────────────┐      │
+│   │                     AIRFLOW :8080                        │      │
+│   │  Exécute automatiquement des tâches planifiées          │      │
+│   │  • Vérification santé API (toutes les heures)           │      │
+│   │  • Tests automatiques                                   │      │
+│   │  • Collecte de rapports                                 │      │
+│   └─────────────────────────────────────────────────────────┘      │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+## 6.2 Métriques Prometheus - Explications détaillées
+
+### Qu'est-ce que Prometheus ?
+
+**Prometheus** est un système de surveillance qui :
+1. **Collecte** des données de l'API toutes les 15 secondes
+2. **Stocke** ces données dans une base temporelle
+3. **Permet de requêter** ces données pour créer des graphiques
+
+### Les 3 types de métriques
+
+#### 1. Counter (Compteur) - "Combien ?"
+
+Un compteur ne fait qu'**augmenter**. Il compte le nombre total d'événements.
+
+| Métrique | Ce qu'elle compte | Exemple d'utilisation |
+|----------|-------------------|----------------------|
+| `credit_risk_requests_total` | Nombre de requêtes reçues par l'API | "L'API a reçu 1,247 requêtes depuis le démarrage" |
+| `credit_risk_predictions_total` | Nombre de prédictions par niveau de risque | "Il y a eu 89 prédictions 'Moyen' et 14 prédictions 'Élevé'" |
+
+**Comment lire un Counter dans Grafana :**
+- La valeur brute (ex: 1,247) = total depuis le démarrage
+- Le "rate" ou "increase" = combien par seconde/minute (plus utile)
+
+#### 2. Histogram (Histogramme) - "Combien de temps ?"
+
+Un histogramme mesure la **distribution des durées**. Il permet de calculer les **percentiles**.
+
+| Métrique | Ce qu'elle mesure | Exemple |
+|----------|-------------------|---------|
+| `credit_risk_request_latency_seconds` | Temps de réponse de l'API | "La requête a pris 0.045 secondes" |
+| `credit_risk_prediction_latency_seconds` | Temps de calcul du modèle | "La prédiction a pris 0.012 secondes" |
+
+#### 3. Gauge (Jauge) - "Quelle valeur maintenant ?"
+
+Une jauge peut **monter ou descendre**. Elle représente une valeur à un instant T.
+
+| Métrique | Ce qu'elle représente | Valeurs possibles |
+|----------|----------------------|-------------------|
+| `credit_risk_model_loaded` | Le modèle est-il chargé ? | 1 = Oui, 0 = Non |
+| `credit_risk_last_prediction_probability` | Dernière probabilité calculée | 0.00 à 1.00 (ex: 0.45 = 45%) |
+
+### Comprendre les Percentiles (P50, P95, P99)
+
+**⭐ EXPLICATION SIMPLE DES PERCENTILES ⭐**
+
+Imaginez que vous mesurez le temps de réponse de 100 requêtes et que vous les triez de la plus rapide à la plus lente :
+
+```
+Requête #1:   0.010s  ← La plus rapide
+Requête #2:   0.011s
+Requête #3:   0.012s
+...
+Requête #50:  0.045s  ← P50 (Médiane) : 50% des requêtes sont plus rapides
+...
+Requête #95:  0.120s  ← P95 : 95% des requêtes sont plus rapides
+...
+Requête #99:  0.350s  ← P99 : 99% des requêtes sont plus rapides
+Requête #100: 0.500s  ← La plus lente
+```
+
+| Percentile | Signification | Utilité |
+|------------|---------------|---------|
+| **P50 (Médiane)** | 50% des requêtes sont plus rapides que cette valeur | Performance "normale" |
+| **P95** | 95% des requêtes sont plus rapides | Performance "quasi-pire cas" |
+| **P99** | 99% des requêtes sont plus rapides | Performance du pire cas (hors extrêmes) |
+
+**Pourquoi P95 et P99 sont importants ?**
+
+- **P50 = 45ms** → La moitié des utilisateurs attendent moins de 45ms ✅
+- **P95 = 120ms** → 5% des utilisateurs attendent plus de 120ms ⚠️
+- **P99 = 350ms** → 1% des utilisateurs attendent plus de 350ms ⚠️
+
+En production, on surveille P95 et P99 car :
+- Les utilisateurs "malchanceux" ont une mauvaise expérience
+- Un P99 élevé peut indiquer un problème (ex: garbage collection, base de données lente)
+
+**Exemple concret pour ce projet :**
+
+| Métrique | Valeur observée | Interprétation |
+|----------|-----------------|----------------|
+| Latence P50 | 12ms | "La moitié des prédictions prennent moins de 12ms" |
+| Latence P95 | 45ms | "95% des prédictions prennent moins de 45ms" |
+| Latence P99 | 89ms | "Même le pire cas reste sous 100ms" ✅ |
+
+## 6.3 Dashboard Grafana - Explication de chaque panneau
+
+### Qu'est-ce que Grafana ?
+
+**Grafana** transforme les données Prometheus en **graphiques visuels**. C'est le "tableau de bord" de supervision.
+
+### Accès
+
+| Information | Valeur |
+|-------------|--------|
+| URL | http://localhost:3000 |
+| Utilisateur | admin |
+| Mot de passe | admin |
+
+### Les 8 panneaux du dashboard expliqués
+
+#### Panneau 1 : "Requêtes (5 min)"
+
+```
+┌─────────────────────┐
+│     REQUÊTES        │
+│       47            │
+│    (5 dernières     │
+│      minutes)       │
+└─────────────────────┘
+```
+
+**Ce que ça montre :** Le nombre total de requêtes reçues par l'API dans les 5 dernières minutes.
+
+**Comment l'interpréter :**
+- 0 → Aucune activité (normal si personne n'utilise l'application)
+- 10-50 → Activité légère (tests, quelques utilisateurs)
+- 100+ → Activité importante (utilisation en production)
+
+---
+
+#### Panneau 2 : "Latence P95"
+
+```
+┌─────────────────────┐
+│    LATENCE P95      │
+│      45 ms          │
+└─────────────────────┘
+```
+
+**Ce que ça montre :** 95% des requêtes répondent en moins de cette durée.
+
+**Comment l'interpréter :**
+| Valeur | Interprétation |
+|--------|----------------|
+| < 100ms | ✅ Excellent - API très réactive |
+| 100-500ms | ⚠️ Acceptable - Peut être amélioré |
+| > 500ms | ❌ Problème - Investiguer la cause |
+
+---
+
+#### Panneau 3 : "Modèle chargé"
+
+```
+┌─────────────────────┐
+│   MODÈLE CHARGÉ     │
+│        ✅           │
+│   (valeur = 1)      │
+└─────────────────────┘
+```
+
+**Ce que ça montre :** Le modèle XGBoost est-il chargé en mémoire ?
+
+**Comment l'interpréter :**
+- **1 (✅)** → Le modèle est prêt, les prédictions fonctionnent
+- **0 (❌)** → ALERTE ! Le modèle n'est pas chargé, les prédictions échoueront
+
+---
+
+#### Panneau 4 : "Dernière prédiction"
+
+```
+┌─────────────────────┐
+│ DERNIÈRE PRÉDICTION │
+│       45.2%         │
+└─────────────────────┘
+```
+
+**Ce que ça montre :** La probabilité de défaut de la dernière prédiction effectuée.
+
+**Comment l'interpréter :**
+| Valeur | Niveau de risque |
+|--------|------------------|
+| < 30% | Risque Faible |
+| 30-55% | Risque Moyen |
+| > 55% | Risque Élevé |
+
+---
+
+#### Panneau 5 : "Requêtes/sec par endpoint"
+
+```
+┌────────────────────────────────────────────────┐
+│ Requêtes par seconde                           │
+│                                                │
+│  0.5 │    ╭──╮                                 │
+│      │   ╱    ╲      /predict                  │
+│  0.3 │  ╱      ╲────╱                          │
+│      │ ╱                    /health            │
+│  0.1 │╱─────────────────────────────           │
+│      └──────────────────────────────────────   │
+│        10:00   10:05   10:10   10:15           │
+└────────────────────────────────────────────────┘
+```
+
+**Ce que ça montre :** L'évolution du nombre de requêtes par seconde, séparé par endpoint.
+
+**Comment l'interpréter :**
+- **Pics** → Moments d'activité intense
+- **Creux** → Périodes calmes
+- **Ligne plate à 0** → Aucune activité
+
+**Endpoints surveillés :**
+- `/predict` → Prédictions de risque (le plus important)
+- `/explain` → Explications SHAP
+- `/health` → Vérifications de santé (souvent automatiques)
+
+---
+
+#### Panneau 6 : "Latence (percentiles)"
+
+```
+┌────────────────────────────────────────────────┐
+│ Latence des requêtes (ms)                      │
+│                                                │
+│ 100 │         ╭╮                               │
+│     │        ╱  ╲    P99                       │
+│  50 │   ╭───╱    ╲───╮    P95                  │
+│     │  ╱              ╲──╱                     │
+│  20 │─╱────────────────────── P50              │
+│     └──────────────────────────────────────    │
+│        10:00   10:05   10:10   10:15           │
+└────────────────────────────────────────────────┘
+```
+
+**Ce que ça montre :** L'évolution de la latence au fil du temps, avec 3 courbes :
+- **P50 (ligne du bas)** : Latence médiane
+- **P95 (ligne du milieu)** : 95% des requêtes sont plus rapides
+- **P99 (ligne du haut)** : 99% des requêtes sont plus rapides
+
+**Comment l'interpréter :**
+- **Courbes stables** → Performance constante ✅
+- **Pic soudain** → Problème ponctuel (ex: charge importante)
+- **Montée progressive** → Dégradation à investiguer ⚠️
+- **P99 très au-dessus de P50** → Quelques requêtes sont très lentes
+
+---
+
+#### Panneau 7 : "Prédictions par risque"
+
+```
+┌────────────────────────────────────────────────┐
+│ Prédictions par niveau de risque               │
+│                                                │
+│              ┌─────────┐                       │
+│           ╱╲ │ Moyen   │ 88%                   │
+│         ╱    ╲─────────┘                       │
+│       ╱        ╲                               │
+│     ╱            ╲  ┌─────────┐                │
+│   ╱                ╲│ Élevé   │ 12%            │
+│ ╱                    ─────────┘                │
+│                      ┌─────────┐               │
+│                      │ Faible  │ 0%            │
+│                      └─────────┘               │
+└────────────────────────────────────────────────┘
+```
+
+**Ce que ça montre :** La répartition des prédictions par niveau de risque.
+
+**Comment l'interpréter :**
+
+| Distribution | Signification |
+|--------------|---------------|
+| Majorité "Faible" | Clients de bonne qualité |
+| Majorité "Moyen" | Portefeuille intermédiaire (normal) |
+| Beaucoup d'"Élevé" | ⚠️ Attention aux profils à risque |
+
+**Pourquoi "Faible" peut être à 0% ?**
+
+Les seuils de décision sont :
+- **Faible** : probabilité < 30%
+- **Moyen** : probabilité 30% - 55%
+- **Élevé** : probabilité > 55%
+
+Le modèle ayant un biais vers les probabilités moyennes (dû au déséquilibre des classes 1:11), peu de prédictions tombent sous 30%.
+
+---
+
+#### Panneau 8 : "Prédictions par heure"
+
+```
+┌────────────────────────────────────────────────┐
+│ Prédictions par heure                          │
+│                                                │
+│  50 │                ████                      │
+│     │      ████      ████                      │
+│  25 │ ████ ████ ████ ████ ████                 │
+│     │ ████ ████ ████ ████ ████                 │
+│   0 └──────────────────────────────────────    │
+│      10h   11h   12h   13h   14h               │
+└────────────────────────────────────────────────┘
+```
+
+**Ce que ça montre :** Le nombre de prédictions effectuées chaque heure.
+
+**Comment l'interpréter :**
+- Permet d'identifier les **heures de pointe**
+- Utile pour la **planification de capacité**
+- Aide à détecter des **anomalies** (pic ou creux inhabituel)
+
+## 6.4 Apache Airflow - Explication détaillée
+
+### Qu'est-ce qu'Airflow ?
+
+**Apache Airflow** est un outil d'**orchestration** qui :
+1. Exécute des tâches **automatiquement** selon un planning
+2. Gère les **dépendances** entre tâches
+3. Permet de **visualiser** l'exécution des workflows
+
+### Accès
+
+| Information | Valeur |
+|-------------|--------|
+| URL | http://localhost:8080 |
+| Utilisateur | admin |
+| Mot de passe | *(généré automatiquement - voir les logs du container)* |
+
+### Le DAG "credit_risk_monitoring"
+
+**DAG** = Directed Acyclic Graph = Un ensemble de tâches avec leurs dépendances.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                   DAG : credit_risk_monitoring                      │
+│                   Fréquence : Toutes les heures                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│   ┌──────────────────┐                                              │
+│   │ check_api_health │  Tâche 1 : Vérifie que l'API répond          │
+│   │    (1ère)        │  → Appelle GET /health                       │
+│   └────────┬─────────┘  → Si échec : alerte                         │
+│            │                                                        │
+│            ▼                                                        │
+│   ┌──────────────────┐                                              │
+│   │ test_prediction  │  Tâche 2 : Teste une prédiction              │
+│   │    (2ème)        │  → Appelle POST /predict avec données test   │
+│   └────────┬─────────┘  → Vérifie que la réponse est valide         │
+│            │                                                        │
+│            ▼                                                        │
+│   ┌──────────────────┐                                              │
+│   │ collect_metrics  │  Tâche 3 : Collecte les métriques            │
+│   │    (3ème)        │  → Appelle GET /metrics                      │
+│   └────────┬─────────┘  → Extrait les compteurs et latences         │
+│            │                                                        │
+│            ▼                                                        │
+│   ┌──────────────────┐                                              │
+│   │ generate_report  │  Tâche 4 : Génère un rapport                 │
+│   │    (4ème)        │  → Résume les résultats des 3 tâches         │
+│   └──────────────────┘  → Log dans la console Airflow               │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Les 4 tâches en détail
+
+| Tâche | Que fait-elle ? | Pourquoi c'est utile ? |
+|-------|-----------------|------------------------|
+| **check_api_health** | Vérifie que l'API est en vie | Détecte rapidement si l'API est tombée |
+| **test_prediction** | Effectue une vraie prédiction | Vérifie que le modèle fonctionne |
+| **collect_metrics** | Récupère les métriques Prometheus | Permet de suivre l'évolution |
+| **generate_report** | Crée un résumé | Garde une trace dans les logs |
+
+### Interface Airflow expliquée
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ AIRFLOW - DAGs                                                      │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────────┐ │
+│ │ DAG                    │ Schedule │ Last Run  │ Status │ Actions│ │
+│ ├────────────────────────┼──────────┼───────────┼────────┼────────┤ │
+│ │ credit_risk_monitoring │ @hourly  │ 10:00:00  │ ✅     │ ▶ ⏸    │ │
+│ └─────────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+│ Légende des statuts :                                               │
+│ ✅ Success - Toutes les tâches ont réussi                          │
+│ 🔄 Running - En cours d'exécution                                   │
+│ ❌ Failed - Au moins une tâche a échoué                            │
+│ ⏸  Paused - Le DAG est en pause (ne s'exécute pas)                 │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Lecture des logs dans Airflow
+
+Pour chaque tâche, vous pouvez voir :
+1. **Le statut** : Success ✅, Failed ❌, Running 🔄
+2. **La durée** : Combien de temps la tâche a pris
+3. **Les logs** : Ce que la tâche a affiché (messages, erreurs)
+
+## 6.5 Configuration Docker Compose
+
+### Services déployés
+
+| Service | Image | Port | Rôle |
+|---------|-------|------|------|
+| **postgres** | postgres:15-alpine | 5432 | Base de données |
+| **api** | Python 3.12 (build local) | 8000 | API FastAPI avec modèle XGBoost |
+| **streamlit** | Python 3.12 (build local) | 8501 | Interface utilisateur |
+| **prometheus** | prom/prometheus:v2.47.0 | 9090 | Collecte des métriques |
+| **grafana** | grafana/grafana:10.2.0 | 3000 | Visualisation des métriques |
+| **airflow** | apache/airflow:3.1.6-python3.12 | 8080 | Orchestration des tâches |
+
+### Commandes utiles
+
+```bash
+# Démarrer tous les services
+docker compose up -d
+
+# Voir l'état des services
+docker compose ps
+
+# Voir les logs d'un service
+docker compose logs api
+docker compose logs airflow
+
+# Arrêter tous les services
+docker compose down
+
+# Redémarrer un service spécifique
+docker compose restart api
+```
+
+### Réseau interne Docker
+
+Les services communiquent entre eux via leurs noms de container :
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                   Réseau : credit_risk_network                      │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│   Streamlit ────────► http://api:8000/predict                       │
+│   (pas localhost!)                                                  │
+│                                                                     │
+│   Prometheus ───────► http://api:8000/metrics                       │
+│   (scrape toutes les 15s)                                           │
+│                                                                     │
+│   Grafana ──────────► http://prometheus:9090                        │
+│   (requêtes PromQL)                                                 │
+│                                                                     │
+│   API ──────────────► postgres:5432                                 │
+│   (connexion base)                                                  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Important :** Dans Docker, les services utilisent les noms de container (ex: `api`, `prometheus`), pas `localhost`.
+
+## 6.6 Résumé des interfaces
+
+| Interface | URL | Login | Ce qu'on y fait |
+|-----------|-----|-------|-----------------|
+| **Swagger API** | http://localhost:8000/docs | - | Tester les endpoints manuellement |
+| **Streamlit** | http://localhost:8501 | - | Faire des prédictions (interface utilisateur) |
+| **Prometheus** | http://localhost:9090 | - | Explorer les métriques brutes (avancé) |
+| **Grafana** | http://localhost:3000 | admin/admin | Visualiser les dashboards de monitoring |
+| **Airflow** | http://localhost:8080 | admin/(voir logs) | Gérer les tâches planifiées |
+
+## 6.7 Problèmes rencontrés et solutions
+
+| Problème | Cause | Solution |
+|----------|-------|----------|
+| Port 5432 déjà utilisé | PostgreSQL local actif | `sudo service postgresql stop` |
+| Port 8000 déjà utilisé | Uvicorn local actif | `pkill -f uvicorn` |
+| Airflow permission denied | UID/GID incorrect | `sudo chown -R 50000:0 airflow/ && sudo chmod -R 775 airflow/` |
+| SHAP erreur 503 "string to float" | Version SHAP incompatible (0.49 vs 0.50) | Mettre à jour Dockerfile vers Python 3.12 et SHAP >= 0.50.0 |
+| Streamlit "API non disponible" | `localhost` ne fonctionne pas dans Docker | Utiliser `os.getenv("API_URL")` = `http://api:8000` |
+| `docker-compose` command not found | Ancienne syntaxe | Utiliser `docker compose` (sans tiret) |
+
+## 6.8 Validation Phase 6
+
+```bash
+# Checklist de validation complète
+[x] docker compose up -d démarre sans erreur
+[x] docker compose ps montre 6 services "healthy" ou "running"
+[x] http://localhost:8000/health retourne "healthy"
+[x] http://localhost:8000/metrics retourne les métriques Prometheus
+[x] http://localhost:8501 affiche Streamlit (API connectée)
+[x] http://localhost:9090 affiche Prometheus
+[x] http://localhost:3000 affiche Grafana avec le dashboard
+[x] http://localhost:8080 affiche Airflow avec le DAG
+[x] Le DAG s'exécute avec succès (4 tâches vertes)
+[x] Grafana affiche les métriques après quelques prédictions
+[x] L'endpoint /explain fonctionne (SHAP v0.50.0)
+```
 
 ---
 
@@ -936,4 +1465,29 @@ Pas de jargon technique, pas de valeurs SHAP brutes - uniquement des explication
 
 ---
 
-**Dernière mise à jour :** 28 Janvier 2026 - Phase 5 100% complète (API + Streamlit + 31 Tests + Visualisation SHAP)
+**Dernière mise à jour :** 28 Janvier 2026 - Phase 6 complète avec documentation détaillée des métriques, percentiles (P50/P95/P99), et interfaces
+
+---
+
+# GLOSSAIRE TECHNIQUE
+
+Pour faciliter la compréhension de ce rapport, voici les termes techniques utilisés :
+
+| Terme | Explication simple |
+|-------|-------------------|
+| **AUC-ROC** | Score de 0 à 1 mesurant la qualité du modèle. 0.5 = hasard, 1.0 = parfait. Notre modèle : 0.78 = bon |
+| **Counter** | Compteur qui ne fait qu'augmenter (ex: nombre de requêtes) |
+| **DAG** | Graphe de tâches avec dépendances (Directed Acyclic Graph) |
+| **Endpoint** | URL d'accès à une fonctionnalité de l'API (ex: /predict, /health) |
+| **Feature** | Variable utilisée par le modèle pour faire une prédiction |
+| **Gauge** | Valeur qui peut monter ou descendre (ex: dernière probabilité) |
+| **Gini** | Mesure de discrimination : 2×AUC - 1. Notre modèle : 0.57 = bon |
+| **Histogram** | Distribution de valeurs permettant de calculer les percentiles |
+| **Latence** | Temps entre une requête et sa réponse |
+| **P50/P95/P99** | Percentiles - voir section 6.2 pour explication détaillée |
+| **Precision** | Parmi les alertes "risque", combien sont de vrais risques |
+| **PromQL** | Langage de requête de Prometheus |
+| **Recall** | Parmi les vrais risques, combien sont détectés |
+| **SHAP** | Méthode d'explication des prédictions (SHapley Additive exPlanations) |
+| **Seuil** | Valeur de coupure pour décider (ex: >55% = risque élevé) |
+| **XGBoost** | Algorithme de machine learning utilisé dans ce projet |

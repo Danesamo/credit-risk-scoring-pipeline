@@ -103,14 +103,14 @@ Credit_Risk_Scoring_Project/
 **requirements.txt initial :**
 ```
 # Core
-python>=3.10
+python>=3.12
 pandas>=2.0.0
 numpy>=1.24.0
 scikit-learn>=1.3.0
 
 # ML
 xgboost>=2.0.0
-shap>=0.43.0
+shap>=0.50.0
 optuna>=3.4.0
 imbalanced-learn>=0.11.0
 
@@ -544,77 +544,66 @@ GET /docs
 
 **Objectif :** Automatiser le pipeline et monitorer l'application
 
-### Étape 6.1 : DAG Airflow
-- [ ] Créer `airflow/dags/credit_risk_pipeline.py`
-- [ ] Task 1 : Ingestion des données
-- [ ] Task 2 : Feature engineering
-- [ ] Task 3 : Entraînement du modèle (si schedule)
-- [ ] Task 4 : Validation des métriques
+### Étape 6.1 : Métriques Prometheus
+- [x] Ajouter endpoint `/metrics` dans FastAPI
+- [x] Métriques : `requests_total`, `predictions_total`, `latency`
+- [x] Compteurs par endpoint et niveau de risque
+- [x] Histogrammes de latence (P50, P95, P99)
+
+**Métriques exposées :**
+```python
+# Compteurs
+credit_risk_requests_total{endpoint, method, status}
+credit_risk_predictions_total{risk_level}
+
+# Histogrammes
+credit_risk_request_latency_seconds
+credit_risk_prediction_latency_seconds
+
+# Gauges
+credit_risk_model_loaded
+credit_risk_last_prediction_probability
+```
+
+### Étape 6.2 : Dashboard Grafana
+- [x] Créer `monitoring/grafana/dashboards/credit_risk_dashboard.json`
+- [x] 8 panels : stats, graphiques, pie chart
+- [x] Rafraîchissement automatique (5s)
+- [x] Couleurs par niveau de risque
+
+### Étape 6.3 : DAG Airflow
+- [x] Créer `airflow/dags/credit_risk_pipeline.py`
+- [x] Task 1 : Vérification santé API
+- [x] Task 2 : Test de prédiction
+- [x] Task 3 : Collecte métriques
+- [x] Task 4 : Génération rapport
 
 **Structure du DAG :**
 ```python
-# credit_risk_pipeline.py
-ingest >> preprocess >> feature_eng >> train >> evaluate >> deploy
+check_api_health >> test_prediction >> collect_metrics >> generate_report
 ```
-
-### Étape 6.2 : Monitoring Prometheus
-- [ ] Configurer `monitoring/prometheus.yml`
-- [ ] Ajouter les métriques dans FastAPI
-- [ ] Métriques : requêtes/sec, latence, erreurs
-
-**Métriques à exposer :**
-```python
-# Compteurs
-requests_total
-predictions_total
-errors_total
-
-# Histogrammes
-prediction_latency_seconds
-
-# Gauges
-model_version
-last_prediction_timestamp
-```
-
-### Étape 6.3 : Dashboard Grafana
-- [ ] Configurer Grafana (via Docker)
-- [ ] Créer le dashboard de monitoring
-- [ ] Panels : latence, throughput, erreurs
 
 ### Étape 6.4 : Docker Compose complet
-- [ ] Intégrer tous les services dans docker-compose.yml
-- [ ] PostgreSQL
-- [ ] API FastAPI
-- [ ] Streamlit
-- [ ] Airflow
-- [ ] Prometheus
-- [ ] Grafana
+- [x] PostgreSQL (base de données)
+- [x] API FastAPI (backend)
+- [x] Streamlit (frontend)
+- [x] Prometheus (métriques)
+- [x] Grafana (dashboards)
+- [x] Airflow (orchestration)
 
-**docker-compose.yml final :**
-```yaml
-services:
-  postgres:
-    image: postgres:15
-  api:
-    build: ./api
-  streamlit:
-    build: ./streamlit
-  airflow:
-    image: apache/airflow:2.7.0
-  prometheus:
-    image: prom/prometheus
-  grafana:
-    image: grafana/grafana
+**Commande de lancement :**
+```bash
+docker-compose up -d
 ```
 
 **Validation Phase 6 :**
 ```bash
 # Checklist de validation
-[ ] docker-compose up démarre tous les services
-[ ] DAG Airflow visible dans l'UI
-[ ] Dashboard Grafana affiche les métriques
-[ ] Tout fonctionne ensemble
+[x] docker-compose up démarre tous les services
+[x] Endpoint /metrics expose les métriques Prometheus
+[x] DAG Airflow créé et documenté
+[x] Dashboard Grafana avec 8 panels
+[x] Toutes les interfaces accessibles (8000, 8501, 9090, 3000, 8080)
 ```
 
 ---
@@ -666,8 +655,8 @@ services:
 | Phase 2 : Data & EDA | ✅ Terminé | 25/01/2026 | 26/01/2026 | EDA ✅, PostgreSQL: 3.7M lignes chargées |
 | Phase 3 : Feature Engineering | ✅ Terminé | 26/01/2026 | 26/01/2026 | 103 features créées, dataset 225 colonnes |
 | Phase 4 : Modélisation | ✅ Terminé | 27/01/2026 | 27/01/2026 | AUC 0.7836, Optuna 50 trials, SHAP |
-| Phase 5 : API & UI | ✅ Terminé | 27/01/2026 | 27/01/2026 | FastAPI + Streamlit multilingue/multi-devises |
-| Phase 6 : Orchestration | ⬜ À faire | | | Airflow, Prometheus, Grafana |
+| Phase 5 : API & UI | ✅ Terminé | 27/01/2026 | 28/01/2026 | FastAPI + Streamlit + SHAP dynamique |
+| Phase 6 : Orchestration | ✅ Terminé | 28/01/2026 | 28/01/2026 | Prometheus, Grafana, Airflow, Docker |
 | Phase 7 : Déploiement | ⬜ À faire | | | GitHub, Streamlit Cloud, LinkedIn |
 
 **Légende :** ⬜ À faire | 🔄 En cours | ✅ Terminé | ❌ Bloqué
@@ -700,8 +689,33 @@ services:
 | 28/01/2026 | Endpoint /explain avec SHAP | Explicabilité individuelle des prédictions |
 | 28/01/2026 | Visualisation SHAP dynamique | Nombre de facteurs adapté au profil (6-3, 4-4, 3-6) |
 | 28/01/2026 | Traduction 40+ features | Interface compréhensible par tous (clients, analystes) |
+| 28/01/2026 | Métriques Prometheus dans API | Endpoint /metrics pour monitoring |
+| 28/01/2026 | Dashboard Grafana 8 panels | Visualisation temps réel des métriques |
+| 28/01/2026 | DAG Airflow pipeline | Automatisation health check + prédiction + rapport |
+| 28/01/2026 | SQLite pour Airflow (dev) | Simplicité, pas besoin de BDD séparée |
+| 28/01/2026 | Python 3.12 dans Docker | SHAP 0.50.0 nécessite Python ≥ 3.11 |
+| 28/01/2026 | SHAP 0.50.0 (upgrade) | Erreur "[5E-1]" avec version 0.49.x |
+| 28/01/2026 | Airflow 3.1.6 standalone | Génère automatiquement le mot de passe admin |
+| 28/01/2026 | API_URL via env variable | Streamlit dans Docker utilise `http://api:8000` |
 
 ---
 
 **Document créé le :** Janvier 2026
-**Dernière mise à jour :** 28 Janvier 2026 - Phase 5 100% complète (API + Streamlit + Tests + Visualisation SHAP dynamique)
+**Dernière mise à jour :** 28 Janvier 2026 - Phase 6 complète
+
+---
+
+## VERSIONS TECHNIQUES FINALES
+
+| Composant | Version | Notes |
+|-----------|---------|-------|
+| Python | 3.12 | Requis pour SHAP 0.50.0 |
+| XGBoost | 2.0.0+ | Modèle principal |
+| SHAP | 0.50.0+ | Explicabilité (nécessite Python ≥ 3.11) |
+| FastAPI | 0.104.0+ | API REST |
+| Streamlit | 1.28.0+ | Interface utilisateur |
+| PostgreSQL | 15 | Base de données |
+| Prometheus | v2.47.0 | Collecte métriques |
+| Grafana | 10.2.0 | Dashboards |
+| Apache Airflow | 3.1.6 | Orchestration |
+| Docker Compose | v2 | Commande : `docker compose` (sans tiret) |
