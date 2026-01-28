@@ -462,64 +462,80 @@ shap.waterfall_plot(shap_values[0])
 **Objectif :** Exposer le modèle via une API et créer une interface démo
 
 ### Étape 5.1 : API FastAPI
-- [ ] Créer `api/main.py`
-- [ ] Créer `api/schemas.py` (Pydantic models)
-- [ ] Endpoint `/predict` pour le scoring
-- [ ] Endpoint `/explain` pour les SHAP values
-- [ ] Endpoint `/health` pour le monitoring
+- [x] Créer `api/main.py`
+- [x] Schémas Pydantic intégrés (ClientData, PredictionResponse, HealthResponse, ExplainResponse)
+- [x] Endpoint `/predict` pour le scoring
+- [x] Endpoint `/explain` pour les SHAP values ✅
+- [x] Endpoint `/health` pour le monitoring
 
-**Endpoints à implémenter :**
+**Endpoints implémentés :**
 ```
+GET /
+  Output: Liste des endpoints disponibles
+
 POST /predict
   Input: données client (JSON)
-  Output: {score: float, probability: float, decision: str}
+  Output: {probability, prediction, risk_level, score}
 
 POST /explain
   Input: données client (JSON)
-  Output: {shap_values: dict, top_features: list}
+  Output: {probability, base_probability, risk_level, top_risk_factors, top_protective_factors}
 
 GET /health
-  Output: {status: "healthy", model_version: str}
+  Output: {status, model_loaded, model_version, auc_roc}
 
-GET /metrics
-  Output: métriques Prometheus
+GET /docs
+  Output: Documentation Swagger automatique
 ```
 
 ### Étape 5.2 : Tests API
-- [ ] Créer `tests/test_api.py`
-- [ ] Tests unitaires des endpoints
-- [ ] Tests de validation des inputs
-- [ ] Tests de performance (latence)
+- [x] Créer `tests/test_api.py`
+- [x] Tests unitaires des endpoints (17 tests : root, health, predict, explain)
+- [x] Tests de validation des inputs (3 tests)
+- [x] Tests de logique métier (2 tests)
+- [x] Tests de performance (3 tests) - latence predict < 500ms, explain < 2s
+- [x] Tests endpoint `/explain` (6 tests SHAP values)
+- [x] **Résultat : 31/31 tests PASSED ✅**
 
 ### Étape 5.3 : Interface Streamlit
-- [ ] Créer `streamlit/app.py`
-- [ ] Formulaire de saisie des données client
-- [ ] Affichage du score et de la décision
-- [ ] Visualisation SHAP interactive
-- [ ] Exemples pré-remplis pour la démo
+- [x] Créer `streamlit/app.py`
+- [x] Formulaire de saisie des données client
+- [x] Affichage du score et de la décision
+- [x] **BONUS : Support multilingue (FR/EN)**
+- [x] **BONUS : Support multi-devises (EUR, USD, XAF, XOF)**
+- [x] Exemples pré-remplis calibrés (Fiable, Moyen, Risqué)
+- [x] Indicateur visuel de risque avec légende
+- [x] Facteurs clés (positifs/négatifs)
+- [x] Visualisation SHAP interactive via API /explain ✅
 
-**Sections de l'interface :**
+**Sections de l'interface (implémentées) :**
 ```
-1. Header avec titre et description
-2. Sidebar avec exemples de clients
-3. Formulaire de saisie (ou upload CSV)
-4. Résultat : Score, Probabilité, Décision
-5. Graphique SHAP (explication)
-6. Top 10 facteurs influents
+1. Header avec titre et sous-titre
+2. Sidebar : langue, devise, infos modèle, copyright
+3. Formulaire : revenus, crédit, mensualité, âge, emploi, score
+4. Boutons profils : Fiable, Moyen, Risqué (avec indication active)
+5. Résultat : Décision, Score/850, Probabilité, Niveau de risque
+6. Indicateur : Barre 0%-100% avec position
+7. Facteurs : Points positifs ✓ / Points d'attention ✗
+8. Détails techniques : JSON brut
 ```
 
 ### Étape 5.4 : Intégration API ↔ Streamlit
-- [ ] Streamlit appelle l'API FastAPI
-- [ ] Gestion des erreurs
-- [ ] Loading states
+- [x] Streamlit appelle l'API FastAPI
+- [x] Gestion des erreurs (API indisponible, erreur 400/500)
+- [x] Loading states (spinner pendant l'analyse)
+- [x] Conversion devises bidirectionnelle
 
 **Validation Phase 5 :**
 ```bash
 # Checklist de validation
-[ ] curl localhost:8000/predict fonctionne
-[ ] Tests API passent (pytest tests/test_api.py)
-[ ] Streamlit s'affiche correctement
-[ ] Latence < 500ms
+[x] curl localhost:8000/predict fonctionne
+[x] curl localhost:8000/health retourne healthy
+[x] Streamlit s'affiche correctement
+[x] 3 profils donnent résultats cohérents (36% < 40% < 81%)
+[x] Multi-devises : EUR et XAF donnent même probabilité
+[x] Multilingue : FR et EN fonctionnent
+[x] pytest tests/test_api.py → 31/31 PASSED ✅
 ```
 
 ---
@@ -650,9 +666,9 @@ services:
 | Phase 2 : Data & EDA | ✅ Terminé | 25/01/2026 | 26/01/2026 | EDA ✅, PostgreSQL: 3.7M lignes chargées |
 | Phase 3 : Feature Engineering | ✅ Terminé | 26/01/2026 | 26/01/2026 | 103 features créées, dataset 225 colonnes |
 | Phase 4 : Modélisation | ✅ Terminé | 27/01/2026 | 27/01/2026 | AUC 0.7836, Optuna 50 trials, SHAP |
-| Phase 5 : API & UI | ⬜ À faire | | | |
-| Phase 6 : Orchestration | ⬜ À faire | | | |
-| Phase 7 : Déploiement | ⬜ À faire | | | |
+| Phase 5 : API & UI | ✅ Terminé | 27/01/2026 | 27/01/2026 | FastAPI + Streamlit multilingue/multi-devises |
+| Phase 6 : Orchestration | ⬜ À faire | | | Airflow, Prometheus, Grafana |
+| Phase 7 : Déploiement | ⬜ À faire | | | GitHub, Streamlit Cloud, LinkedIn |
 
 **Légende :** ⬜ À faire | 🔄 En cours | ✅ Terminé | ❌ Bloqué
 
@@ -675,8 +691,17 @@ services:
 | 27/01/2026 | Encodage catégorielles reporté à Phase 4 | XGBoost supporte `enable_categorical=True`, plus flexible |
 | 27/01/2026 | Notebook pour Phase 4 (pas scripts) | Graphiques interactifs, SHAP plots, exploration |
 | 27/01/2026 | Jupyter navigateur (pas VS Code) | Problème kernel VS Code, accès direct sans token |
+| 27/01/2026 | Support multilingue FR/EN | Valorisation portfolio international |
+| 27/01/2026 | Support multi-devises (EUR/USD/XAF/XOF) | Marchés Europe + Amérique + Afrique |
+| 27/01/2026 | Seuils décision ajustés (40%/55%) | Calibrés sur comportement réel du modèle |
+| 27/01/2026 | Profils démo calibrés empiriquement | Score externe domine (40% importance) |
+| 27/01/2026 | Schémas Pydantic inline (pas schemas.py) | Simplicité, tout dans main.py |
+| 28/01/2026 | Tests API avec pytest (31 tests) | Qualité code, CI/CD ready |
+| 28/01/2026 | Endpoint /explain avec SHAP | Explicabilité individuelle des prédictions |
+| 28/01/2026 | Visualisation SHAP dynamique | Nombre de facteurs adapté au profil (6-3, 4-4, 3-6) |
+| 28/01/2026 | Traduction 40+ features | Interface compréhensible par tous (clients, analystes) |
 
 ---
 
 **Document créé le :** Janvier 2026
-**Dernière mise à jour :** 27 Janvier 2026 - Phase 4 terminée
+**Dernière mise à jour :** 28 Janvier 2026 - Phase 5 100% complète (API + Streamlit + Tests + Visualisation SHAP dynamique)
