@@ -604,4 +604,4 @@ C'est exactement le type de projet que recherchent les employeurs en 2026 : un p
 **Document rédigé le :** 25 Janvier 2026
 **Auteur :** Daniela Samo 
 **Version :** 1.1 (ajout section 14 - Clarifications)
-**Prochain document :** `02_FEUILLE_DE_ROUTE.md` (Plan d'exécution pas à pas)
+**Prochain document :** `03_RAPPORT_AVANCEMENT.md` (Journal de bord et résultats)

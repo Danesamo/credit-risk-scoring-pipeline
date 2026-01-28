@@ -60,7 +60,20 @@ Client débutant avec faibles revenus et mauvais historique.
 
 **Résultat :** Score 424/850 | Risque 77.3% | ❌ Crédit déconseillé
 
----
+### Monitoring & Orchestration
+
+**Grafana** - Dashboard de supervision en temps réel
+
+![Grafana Dashboard](docs/images/grafana.png)
+
+**Prometheus** - Collecte des métriques API
+
+![Prometheus Metrics](docs/images/prometheus.png)
+
+**Airflow** - Orchestration du pipeline avec 4 tâches automatisées
+
+![Airflow DAG](docs/images/airflow.png)
+
 
 ## Performance du Modèle
 

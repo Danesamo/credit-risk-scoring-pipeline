@@ -1413,7 +1413,6 @@ Les services communiquent entre eux via leurs noms de container :
 |---------|---------------|
 | `README.md` | Version française complète, screenshots, versions corrigées |
 | `docs/01_ETUDE_PROJET.md` | Python 3.10+ → 3.12+ |
-| `docs/02_FEUILLE_DE_ROUTE.md` | Phase 7 détaillée, versions actualisées |
 | `docs/03_RAPPORT_AVANCEMENT.md` | Profils réalistes, captures d'écran, Phase 7 |
 
 ### Corrections apportées
