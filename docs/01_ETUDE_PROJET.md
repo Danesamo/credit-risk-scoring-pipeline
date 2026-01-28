@@ -1,7 +1,5 @@
 # Étude de Projet : Credit Risk Scoring Pipeline
 
----
-
 ## 1. INTRODUCTION
 
 ### 1.1 Objet du document
@@ -17,7 +15,6 @@ Ce document s'inscrit dans une démarche professionnelle de gestion de projet, t
 - Data Engineers et Data Scientists
 - Tout professionnel souhaitant comprendre un projet de scoring crédit end-to-end
 
----
 
 ## 2. CONTEXTE GÉNÉRAL
 
@@ -48,7 +45,6 @@ Le crédit est un pilier fondamental de l'économie moderne. Il permet :
 
 **Problème spécifique :** Comment évaluer la solvabilité de clients qui n'ont pas d'historique de crédit traditionnel (pas de score FICO, pas de compte bancaire historique) ?
 
----
 
 ## 3. PROBLÉMATIQUE MÉTIER
 
@@ -110,7 +106,6 @@ Ce risque se manifeste par :
 | **Inclusion** | Données alternatives → plus de personnes éligibles |
 | **Cohérence** | Décisions reproductibles et auditables |
 
----
 
 ## 4. CADRE RÉGLEMENTAIRE
 
@@ -138,7 +133,6 @@ Depuis le RGPD (Europe) et les réglementations similaires :
 - Les modèles "boîte noire" sont problématiques
 - **Solution :** Utiliser SHAP pour l'explicabilité (ce que nous ferons)
 
----
 
 ## 5. OBJECTIFS DU PROJET
 
@@ -169,7 +163,6 @@ Depuis le RGPD (Europe) et les réglementations similaires :
 | 2 | Projet déployé et accessible | App Streamlit live |
 | 3 | Visibilité professionnelle | Post LinkedIn avec démo |
 
----
 
 ## 6. PÉRIMÈTRE DU PROJET
 
@@ -205,7 +198,6 @@ Depuis le RGPD (Europe) et les réglementations similaires :
 | **Dataset fixe** | Kaggle Home Credit (pas de données propriétaires) |
 | **Ressources locales** | Développement sur machine personnelle |
 
----
 
 ## 7. PRÉSENTATION DES DONNÉES
 
@@ -249,7 +241,6 @@ Distribution : ~8% de défauts (déséquilibre de classes)
 | **Comportementales** | Historique de paiements, retards | Comportement passé |
 | **Documents** | Documents fournis ou manquants | Sérieux du dossier |
 
----
 
 ## 8. APPROCHE MÉTHODOLOGIQUE
 
@@ -325,7 +316,6 @@ Distribution : ~8% de défauts (déséquilibre de classes)
 2. Dashboard Grafana
 3. Alertes (optionnel)
 
----
 
 ## 9. STACK TECHNIQUE
 
@@ -333,7 +323,7 @@ Distribution : ~8% de défauts (déséquilibre de classes)
 
 | Catégorie | Technologie | Justification |
 |-----------|-------------|---------------|
-| **Langage** | Python 3.10+ | Standard industrie Data/ML |
+| **Langage** | Python 3.12+ | Standard industrie Data/ML |
 | **ML** | XGBoost | Performant, rapide, interprétable |
 | **Explicabilité** | SHAP | Standard pour l'explicabilité ML |
 | **Base de données** | PostgreSQL | Robuste, SQL standard, gratuit |
@@ -361,7 +351,6 @@ Distribution : ~8% de défauts (déséquilibre de classes)
 - Documentation OpenAPI automatique
 - Validation Pydantic intégrée
 
----
 
 ## 10. CRITÈRES DE SUCCÈS
 
@@ -386,7 +375,6 @@ Distribution : ~8% de défauts (déséquilibre de classes)
 | Notebook EDA | Exploration des données | Visualisations et insights |
 | Dashboard Grafana | Monitoring | Métriques visibles |
 
----
 
 ## 11. RISQUES ET MITIGATION
 
@@ -398,7 +386,6 @@ Distribution : ~8% de défauts (déséquilibre de classes)
 | Complexité feature engineering | Élevée | Moyen | Commencer simple, itérer |
 | Déploiement Streamlit Cloud | Faible | Faible | Alternatives : HuggingFace, Railway |
 
----
 
 ## 12. RESSOURCES ET DOCUMENTATION
 
@@ -463,7 +450,6 @@ Distribution : ~8% de défauts (déséquilibre de classes)
 | **Credit Risk MLOps** | Pipeline complet avec MLflow | https://github.com/topics/credit-risk-modeling |
 | **Home Credit Solutions** | Solutions Kaggle open-source | https://github.com/topics/home-credit |
 
----
 
 ## 13. GLOSSAIRE
 
@@ -480,7 +466,6 @@ Distribution : ~8% de défauts (déséquilibre de classes)
 | **SHAP** | SHapley Additive exPlanations. Méthode d'explicabilité des modèles ML. |
 | **Scoring** | Modèle attribuant une note de risque à un demandeur de crédit. |
 
----
 
 ## 14. CLARIFICATIONS ET CHOIX STRATÉGIQUES
 
@@ -603,7 +588,6 @@ result = duckdb.query("SELECT * FROM 'bureau.csv' WHERE AMT_CREDIT_SUM > 100000"
 
 > **Choix final :** Nous utiliserons PostgreSQL pour démontrer la compétence BDD relationnelle (standard industrie), avec possibilité de basculer sur DuckDB si les ressources machine sont limitées.
 
----
 
 ## 15. CONCLUSION
 
@@ -616,9 +600,8 @@ Ce projet de Credit Risk Scoring Pipeline combine :
 
 C'est exactement le type de projet que recherchent les employeurs en 2026 : un profil capable de comprendre le métier ET de construire des solutions techniques end-to-end.
 
----
 
-**Document rédigé le :** Janvier 2026
+**Document rédigé le :** 25 Janvier 2026
 **Auteur :** Daniela Samo 
 **Version :** 1.1 (ajout section 14 - Clarifications)
 **Prochain document :** `02_FEUILLE_DE_ROUTE.md` (Plan d'exécution pas à pas)

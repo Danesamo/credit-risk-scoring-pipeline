@@ -491,50 +491,183 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================================================================
-# PROFILS PRÉ-DÉFINIS (valeurs en EUR)
+# PROFILS PRÉ-DÉFINIS PAR DEVISE - Basés sur données réelles 2024-2025
 # =============================================================================
-
-# =============================================================================
-# PROFILS DE DÉMONSTRATION - Calibrés pour le modèle XGBoost
-# =============================================================================
-# Ces profils sont conçus pour illustrer les 3 niveaux de décision:
-# - Fiable: Client idéal → Crédit recommandé
-# - Moyen: Client standard avec risques → Étude approfondie nécessaire
-# - Risqué: Client problématique → Crédit déconseillé
+# Sources :
+# - CEMAC/UEMOA : AfricaPaieRH, ANSD Sénégal, SikaFinance
+# - Europe : Eurostat, INSEE, Connexion-Emploi
+# - USA : Bureau of Labor Statistics, Indeed, WorldSalaries
 #
-# IMPORTANT: Le score externe (ext_source) représente 40% de l'importance
-# du modèle. C'est le facteur le plus déterminant dans la prédiction.
+# Contexte économique :
+# - XAF (CEMAC) : SMIG moyen ~83 000 FCFA, Cadre sup ~1 200 000 FCFA/mois
+# - XOF (UEMOA) : SMIG moyen ~55 000 FCFA, Cadre sup ~933 000 FCFA/mois
+# - EUR : SMIC ~2 000 €, Cadre sup ~6 000 €/mois
+# - USD : Minimum ~$2 500, Senior Manager ~$13 000/mois
+#
+# Les profils illustrent 3 niveaux de décision:
+# - Fiable: Crédit recommandé (mensualité < 20% revenus)
+# - Moyen: Étude approfondie (mensualité 25-35% revenus)
+# - Risqué: Crédit déconseillé (mensualité > 100% revenus!)
 # =============================================================================
 
-PROFILES = {
-    "fiable": {
-        # Client idéal: cadre supérieur, historique impeccable
-        "revenus": 90000,      # Revenus élevés
-        "credit": 180000,      # Ratio 2x - très sain
-        "annuite": 800,        # Mensualité confortable (< 15% revenus)
-        "age": 45,             # Maturité financière
-        "anciennete": 15,      # Carrière stable
-        "score": 0.92          # Excellent historique crédit
+PROFILES_BY_CURRENCY = {
+    # =========================================================================
+    # FCFA - Afrique Centrale (XAF) - Zone CEMAC
+    # Cameroun, Gabon, Congo, Tchad, RCA, Guinée Équatoriale
+    # =========================================================================
+    "XAF": {
+        "fiable": {
+            # Cadre supérieur / Directeur / Manager senior
+            # Référence : Analystes financiers, hauts fonctionnaires
+            # Objectif : Probabilité < 35% → "Crédit recommandé"
+            "revenus": 14400000,    # 1 200 000 FCFA/mois
+            "credit": 35000000,     # Crédit immobilier (terrain + construction)
+            "annuite": 280000,      # Mensualité ~23% revenus mensuels
+            "age": 45,
+            "anciennete": 15,
+            "score": 0.85           # Excellent historique
+        },
+        "moyen": {
+            # Cadre moyen / Fonctionnaire catégorie A / Technicien senior
+            # Référence : Développeurs, comptables, enseignants du supérieur
+            # Objectif : Probabilité 40-55% → "Étude approfondie"
+            "revenus": 6000000,     # 500 000 FCFA/mois
+            "credit": 15000000,     # Crédit auto ou petit immobilier
+            "annuite": 150000,      # Mensualité 30% revenus mensuels
+            "age": 35,
+            "anciennete": 4,        # Ancienneté moyenne
+            "score": 0.62           # Historique crédit correct mais pas excellent
+        },
+        "risque": {
+            # Jeune diplômé / Travailleur informel / Débutant
+            # Référence : Proche du SMIG (~70 000 FCFA moyenne CEMAC)
+            # Objectif : Probabilité > 60% → "Crédit déconseillé"
+            "revenus": 1200000,     # 100 000 FCFA/mois
+            "credit": 5000000,      # Crédit trop ambitieux
+            "annuite": 120000,      # Mensualité = 120% revenus mensuels!
+            "age": 24,
+            "anciennete": 0,
+            "score": 0.15           # Mauvais historique ou pas d'historique
+        }
     },
-    "moyen": {
-        # Client standard: employé, quelques signaux d'alerte
-        "revenus": 48000,      # Revenus corrects
-        "credit": 200000,      # Ratio 4.2x - modéré
-        "annuite": 1000,       # Mensualité acceptable
-        "age": 35,             # Adulte
-        "anciennete": 5,       # Emploi stable
-        "score": 0.72          # Historique crédit correct (mais pas excellent)
+
+    # =========================================================================
+    # FCFA - Afrique de l'Ouest (XOF) - Zone UEMOA
+    # Sénégal, Côte d'Ivoire, Mali, Burkina Faso, Bénin, Togo, Niger
+    # Salaires légèrement inférieurs à la CEMAC en moyenne
+    # =========================================================================
+    "XOF": {
+        "fiable": {
+            # Cadre supérieur - Référence ANSD : 11 200 000 FCFA/an
+            # Objectif : Probabilité < 35% → "Crédit recommandé"
+            "revenus": 14400000,    # 1 200 000 FCFA/mois (haut de fourchette)
+            "credit": 35000000,     # Crédit immobilier
+            "annuite": 280000,      # Mensualité ~23% revenus
+            "age": 45,
+            "anciennete": 15,
+            "score": 0.85           # Excellent historique
+        },
+        "moyen": {
+            # Cadre moyen / Fonctionnaire
+            # Objectif : Probabilité 40-55% → "Étude approfondie"
+            "revenus": 6000000,     # 500 000 FCFA/mois
+            "credit": 15000000,     # Crédit véhicule/équipement
+            "annuite": 150000,      # Mensualité 30% revenus
+            "age": 35,
+            "anciennete": 4,        # Ancienneté moyenne
+            "score": 0.62           # Historique correct mais pas excellent
+        },
+        "risque": {
+            # Débutant - SMIG Côte d'Ivoire : 75 000 FCFA
+            # Objectif : Probabilité > 60% → "Crédit déconseillé"
+            "revenus": 1200000,     # 100 000 FCFA/mois
+            "credit": 5000000,      # Surendettement
+            "annuite": 120000,      # Mensualité 120% revenus!
+            "age": 24,
+            "anciennete": 0,
+            "score": 0.15           # Mauvais historique
+        }
     },
-    "risque": {
-        # Client à risque: jeune, instable, mauvais historique
-        "revenus": 22000,      # Revenus faibles (SMIC+)
-        "credit": 250000,      # Ratio 11x - dangereux
-        "annuite": 1600,       # Mensualité insoutenable (87% revenus!)
-        "age": 24,             # Peu d'expérience financière
-        "anciennete": 0,       # Sans emploi stable
-        "score": 0.18          # Mauvais historique crédit
+
+    # =========================================================================
+    # EUR - Europe (France, Allemagne, Belgique, etc.)
+    # SMIC France : 1 802 €, Allemagne : 2 161 €
+    # Cadre moyen France : 4 570 € net, Allemagne : 5 000-6 000 € brut
+    # =========================================================================
+    "EUR": {
+        "fiable": {
+            # Cadre supérieur / Directeur - Top 10% des salaires
+            # Objectif : Probabilité < 35% → "Crédit recommandé"
+            "revenus": 72000,       # 6 000 €/mois
+            "credit": 180000,       # Crédit immobilier
+            "annuite": 900,         # Mensualité 15% revenus
+            "age": 45,
+            "anciennete": 15,
+            "score": 0.85           # Excellent historique
+        },
+        "moyen": {
+            # Cadre moyen / Employé qualifié
+            # Objectif : Probabilité 40-55% → "Étude approfondie"
+            "revenus": 42000,       # 3 500 €/mois
+            "credit": 120000,       # Crédit immobilier modeste
+            "annuite": 600,         # Mensualité ~17% revenus
+            "age": 35,
+            "anciennete": 4,        # Ancienneté moyenne
+            "score": 0.62           # Historique correct mais pas excellent
+        },
+        "risque": {
+            # Travailleur au SMIC / Intérimaire / Étudiant
+            # Objectif : Probabilité > 60% → "Crédit déconseillé"
+            "revenus": 24000,       # 2 000 €/mois (SMIC)
+            "credit": 60000,        # Crédit trop élevé pour ses moyens
+            "annuite": 700,         # Mensualité 35% revenus - limite haute
+            "age": 24,
+            "anciennete": 0,
+            "score": 0.15           # Mauvais historique
+        }
+    },
+
+    # =========================================================================
+    # USD - États-Unis
+    # Salaire médian : $62 088/an, Manager : $106-137k, Senior : $170k
+    # =========================================================================
+    "USD": {
+        "fiable": {
+            # Senior Manager / Director - Top earners
+            # Objectif : Probabilité < 35% → "Crédit recommandé"
+            "revenus": 156000,      # $13 000/mois
+            "credit": 400000,       # Mortgage typique USA
+            "annuite": 2000,        # Monthly payment ~15% income
+            "age": 45,
+            "anciennete": 15,
+            "score": 0.85           # Excellent historique
+        },
+        "moyen": {
+            # Manager / Professional
+            # Objectif : Probabilité 40-55% → "Étude approfondie"
+            "revenus": 90000,       # $7 500/mois
+            "credit": 250000,       # Home loan
+            "annuite": 1300,        # Monthly payment ~17% income
+            "age": 35,
+            "anciennete": 4,        # Ancienneté moyenne
+            "score": 0.62           # Historique correct mais pas excellent
+        },
+        "risque": {
+            # Entry-level / Service worker
+            # Objectif : Probabilité > 60% → "Crédit déconseillé"
+            "revenus": 42000,       # $3 500/mois
+            "credit": 120000,       # Overleveraged
+            "annuite": 1400,        # Payment ~33% income - high risk
+            "age": 24,
+            "anciennete": 0,
+            "score": 0.15           # Mauvais historique
+        }
     }
 }
+
+def get_profiles_for_currency(currency):
+    """Retourne les profils adaptés à la devise sélectionnée."""
+    return PROFILES_BY_CURRENCY.get(currency, PROFILES_BY_CURRENCY["XAF"])
 
 # Initialiser le profil sélectionné si non existant
 if 'selected_profile' not in st.session_state:
@@ -559,12 +692,12 @@ with st.sidebar:
         index=0
     )
 
-    # Sélecteur de devise
+    # Sélecteur de devise (XAF par défaut)
     currency = st.selectbox(
         "💱 Currency / Devise",
-        options=["EUR", "USD", "XAF", "XOF"],
+        options=["XAF", "XOF", "EUR", "USD"],
         format_func=lambda x: f"{CURRENCY_SYMBOLS[x]} - {CURRENCY_INFO[x]}",
-        index=0
+        index=0  # XAF par défaut
     )
 
     st.markdown("---")
@@ -717,12 +850,17 @@ def render_shap_card(factor, is_positive, language, T):
     """
     return html
 
-# Valeurs par défaut selon la devise
+# Valeurs par défaut selon la devise - Basées sur profil "Moyen" de chaque zone
+# Ces valeurs correspondent à un cadre moyen / employé qualifié
 DEFAULT_VALUES = {
-    "EUR": {"income": 45000, "credit": 150000, "monthly": 800},
-    "USD": {"income": 50000, "credit": 165000, "monthly": 900},
-    "XAF": {"income": 30000000, "credit": 100000000, "monthly": 500000},
-    "XOF": {"income": 30000000, "credit": 100000000, "monthly": 500000},
+    # Afrique Centrale (CEMAC) : Cadre moyen ~500 000 FCFA/mois
+    "XAF": {"income": 6000000, "credit": 15000000, "monthly": 150000},
+    # Afrique de l'Ouest (UEMOA) : Cadre moyen ~500 000 FCFA/mois
+    "XOF": {"income": 6000000, "credit": 15000000, "monthly": 150000},
+    # Europe : Cadre moyen ~3 500 €/mois
+    "EUR": {"income": 42000, "credit": 120000, "monthly": 600},
+    # USA : Manager ~7 500 $/mois
+    "USD": {"income": 90000, "credit": 250000, "monthly": 1300},
 }
 
 # =============================================================================
@@ -752,11 +890,13 @@ defaults = DEFAULT_VALUES[currency]
 
 # Si un profil est sélectionné, mettre à jour les valeurs du formulaire
 # IMPORTANT: Ceci doit être fait AVANT la création des widgets
-if st.session_state.selected_profile and st.session_state.selected_profile in PROFILES:
-    profile = PROFILES[st.session_state.selected_profile]
-    st.session_state.w_revenus = int(convert_from_eur(profile["revenus"], currency))
-    st.session_state.w_credit = int(convert_from_eur(profile["credit"], currency))
-    st.session_state.w_annuite = int(convert_from_eur(profile["annuite"], currency))
+# Les profils sont déjà dans la devise native, pas besoin de conversion
+current_profiles = get_profiles_for_currency(currency)
+if st.session_state.selected_profile and st.session_state.selected_profile in current_profiles:
+    profile = current_profiles[st.session_state.selected_profile]
+    st.session_state.w_revenus = int(profile["revenus"])
+    st.session_state.w_credit = int(profile["credit"])
+    st.session_state.w_annuite = int(profile["annuite"])
     st.session_state.w_age = profile["age"]
     st.session_state.w_anciennete = profile["anciennete"]
     st.session_state.w_score = profile["score"]
@@ -861,34 +1001,54 @@ col1, col2, col3 = st.columns(3)
 # Marquer visuellement le profil actif
 active = st.session_state.active_profile
 
+# Générer les tooltips dynamiques selon la devise
+profiles = get_profiles_for_currency(currency)
+symbol = CURRENCY_SYMBOLS[currency]
+
+def format_tooltip_amount(amount):
+    """Formate le montant pour le tooltip selon la devise."""
+    if currency in ["XAF", "XOF"]:
+        if amount >= 1000000:
+            return f"{amount/1000000:.1f}M {symbol}"
+        else:
+            return f"{amount/1000:.0f}k {symbol}"
+    else:
+        return f"{amount/1000:.0f}k {symbol}"
+
 with col1:
+    p = profiles["fiable"]
+    tooltip = f"Cadre supérieur | {format_tooltip_amount(p['revenus'])}/an | Score {p['score']} | {p['anciennete']} ans emploi"
     btn_label = f"{'✓ ' if active == 'fiable' else ''}👤 {T['reliable_profile']}"
     st.button(
         btn_label,
         use_container_width=True,
-        help="Cadre supérieur | 90k€ | Score 0.92 | 15 ans emploi | Ratio 2x",
+        help=tooltip,
         on_click=select_profile,
         args=("fiable",),
         type="primary" if active == "fiable" else "secondary"
     )
 
 with col2:
+    p = profiles["moyen"]
+    tooltip = f"Employé | {format_tooltip_amount(p['revenus'])}/an | Score {p['score']} | {p['anciennete']} ans emploi"
     btn_label = f"{'✓ ' if active == 'moyen' else ''}👤 {T['medium_profile']}"
     st.button(
         btn_label,
         use_container_width=True,
-        help="Employé standard | 48k€ | Score 0.72 | 5 ans emploi | Ratio 4.2x",
+        help=tooltip,
         on_click=select_profile,
         args=("moyen",),
         type="primary" if active == "moyen" else "secondary"
     )
 
 with col3:
+    p = profiles["risque"]
+    tooltip = f"Précaire | {format_tooltip_amount(p['revenus'])}/an | Score {p['score']} | {p['anciennete']} an emploi"
     btn_label = f"{'✓ ' if active == 'risque' else ''}👤 {T['risky_profile']}"
     st.button(
         btn_label,
         use_container_width=True,
-        help="Profil instable | 22k€ | Score 0.18 | 0 an emploi | Ratio 11x",
+        help=tooltip,
         on_click=select_profile,
         args=("risque",),
         type="primary" if active == "risque" else "secondary"

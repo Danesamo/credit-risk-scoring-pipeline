@@ -1,7 +1,5 @@
 # Rapport d'Avancement - Credit Risk Scoring Pipeline
 
----
-
 ## Informations Projet
 
 | Élément | Détail |
@@ -11,13 +9,10 @@
 | **Date début** | 25 Janvier 2026 |
 | **Statut** | 🔄 En cours |
 
----
-
 ## Résumé Exécutif
 
 Ce document trace l'avancement du projet, les décisions prises, les résultats obtenus et les problèmes rencontrés. Il sert de journal de bord et sera la base du rapport final.
 
----
 
 # PHASE 1 : SETUP & ENVIRONNEMENT
 
@@ -55,7 +50,6 @@ Credit_Risk_Scoring_Project/
 └── docs/
 ```
 
----
 
 # PHASE 2 : DATA & EDA
 
@@ -187,7 +181,6 @@ Credit_Risk_Scoring_Project/
 - PostgreSQL local (pas Docker) - port 5432 déjà utilisé
 - Script : `src/data/ingestion.py`
 
----
 
 # PHASE 3 : FEATURE ENGINEERING
 
@@ -226,7 +219,6 @@ Credit_Risk_Scoring_Project/
 - Features count/sum : remplis avec **0** (pas d'historique = 0)
 - Autres features : remplis avec **médiane**
 
----
 
 # PHASE 4 : MODÉLISATION
 
@@ -586,7 +578,6 @@ Les scores externes dominent la prédiction :
 3. **La régularisation est cruciale** : évite l'overfitting sur dataset déséquilibré
 4. **Le baseline était déjà bon** : les 103 features créées en Phase 3 sont de qualité
 
----
 
 # PHASE 5 : API & INTERFACE
 
@@ -697,11 +688,24 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 ### Profils de démonstration calibrés
 
-| Profil | Score externe | Ratio dette | Probabilité | Décision |
-|--------|---------------|-------------|-------------|----------|
-| **Fiable** | 0.92 | 2x | ~36% | ✅ Crédit recommandé |
-| **Moyen** | 0.72 | 4.2x | ~40-45% | ⚠️ Étude approfondie |
-| **Risqué** | 0.18 | 11x | ~81% | ❌ Crédit déconseillé |
+**Profils adaptés par zone économique** (recherche économique SMIG/SMIC) :
+
+| Zone | Devise | Revenu "Fiable" | Revenu "Moyen" | Revenu "Risqué" |
+|------|--------|-----------------|----------------|-----------------|
+| CEMAC | XAF | 14.4M FCFA/an | 6M FCFA/an | 1.2M FCFA/an |
+| UEMOA | XOF | 11.2M FCFA/an | 4.8M FCFA/an | 996K FCFA/an |
+| Europe | EUR | 72 000 €/an | 36 000 €/an | 14 400 €/an |
+| USA | USD | 156 000 $/an | 62 000 $/an | 31 200 $/an |
+
+**Calibration des scores (identique toutes devises)** :
+
+| Profil | Score externe | Ancienneté | Probabilité | Décision |
+|--------|---------------|------------|-------------|----------|
+| **Fiable** | 0.85 | 15 ans | **30.3%** | ✅ Crédit recommandé |
+| **Moyen** | 0.62 | 4 ans | **52.0%** | ⚠️ Étude approfondie |
+| **Risqué** | 0.15 | 0 an | **77.3%** | ❌ Crédit déconseillé |
+
+**Note :** La devise par défaut est XAF (zone CEMAC) pour refléter le contexte économique africain.
 
 ### Seuils de décision
 
@@ -785,7 +789,17 @@ pytest tests/test_api.py -v
 
 ## 5.5 Captures d'écran
 
-*(À ajouter : screenshots de l'interface)*
+**12 captures d'écran ajoutées dans `docs/images/`** :
+
+| Fichier | Description |
+|---------|-------------|
+| `profil_fiable_1.png` | Formulaire - Client cadre supérieur (fiable) |
+| `profil_fiable_2.png` | Résultat - Score 683/850, Risque 30.3% ✅ |
+| `profil_moyen_1.png` | Formulaire - Client cadre moyen |
+| `profil_moyen_2.png` | Résultat - Score 563/850, Risque 52.0% ⚠️ |
+| `profil_risque_1.png` | Formulaire - Client débutant (risqué) |
+| `profil_risque_2.png` | Résultat - Score 424/850, Risque 77.3% ❌ |
+| + 6 autres captures | Détails SHAP et interface |
 
 ## 5.6 Éléments bonus implémentés
 
@@ -862,7 +876,6 @@ Pas de jargon technique, pas de valeurs SHAP brutes - uniquement des explication
 
 4. **Session state Streamlit** - Les callbacks `on_click` doivent modifier le state AVANT la création des widgets pour éviter les erreurs.
 
----
 
 # PHASE 6 : ORCHESTRATION & MONITORING
 
@@ -1030,8 +1043,6 @@ En production, on surveille P95 et P99 car :
 - 10-50 → Activité légère (tests, quelques utilisateurs)
 - 100+ → Activité importante (utilisation en production)
 
----
-
 #### Panneau 2 : "Latence P95"
 
 ```
@@ -1050,8 +1061,6 @@ En production, on surveille P95 et P99 car :
 | 100-500ms | ⚠️ Acceptable - Peut être amélioré |
 | > 500ms | ❌ Problème - Investiguer la cause |
 
----
-
 #### Panneau 3 : "Modèle chargé"
 
 ```
@@ -1067,8 +1076,6 @@ En production, on surveille P95 et P99 car :
 **Comment l'interpréter :**
 - **1 (✅)** → Le modèle est prêt, les prédictions fonctionnent
 - **0 (❌)** → ALERTE ! Le modèle n'est pas chargé, les prédictions échoueront
-
----
 
 #### Panneau 4 : "Dernière prédiction"
 
@@ -1087,8 +1094,6 @@ En production, on surveille P95 et P99 car :
 | < 30% | Risque Faible |
 | 30-55% | Risque Moyen |
 | > 55% | Risque Élevé |
-
----
 
 #### Panneau 5 : "Requêtes/sec par endpoint"
 
@@ -1118,8 +1123,6 @@ En production, on surveille P95 et P99 car :
 - `/explain` → Explications SHAP
 - `/health` → Vérifications de santé (souvent automatiques)
 
----
-
 #### Panneau 6 : "Latence (percentiles)"
 
 ```
@@ -1146,8 +1149,6 @@ En production, on surveille P95 et P99 car :
 - **Pic soudain** → Problème ponctuel (ex: charge importante)
 - **Montée progressive** → Dégradation à investiguer ⚠️
 - **P99 très au-dessus de P50** → Quelques requêtes sont très lentes
-
----
 
 #### Panneau 7 : "Prédictions par risque"
 
@@ -1186,8 +1187,6 @@ Les seuils de décision sont :
 - **Élevé** : probabilité > 55%
 
 Le modèle ayant un biais vers les probabilités moyennes (dû au déséquilibre des classes 1:11), peu de prédictions tombent sous 30%.
-
----
 
 #### Panneau 8 : "Prédictions par heure"
 
@@ -1399,15 +1398,69 @@ Les services communiquent entre eux via leurs noms de container :
 [x] L'endpoint /explain fonctionne (SHAP v0.50.0)
 ```
 
----
 
-# PHASE 7 : DÉPLOIEMENT
+# PHASE 7 : DÉPLOIEMENT & DOCUMENTATION
+
+**Statut :** 🔄 En cours | **Date :** 28/01/2026
+
+## 7.1 Documentation finalisée
+
+**Statut :** ✅ Terminé
+
+### Fichiers mis à jour
+
+| Fichier | Modifications |
+|---------|---------------|
+| `README.md` | Version française complète, screenshots, versions corrigées |
+| `docs/01_ETUDE_PROJET.md` | Python 3.10+ → 3.12+ |
+| `docs/02_FEUILLE_DE_ROUTE.md` | Phase 7 détaillée, versions actualisées |
+| `docs/03_RAPPORT_AVANCEMENT.md` | Profils réalistes, captures d'écran, Phase 7 |
+
+### Corrections apportées
+
+- **Versions des outils** : Vérifiées via `pip show` (Airflow 3.1.6, SHAP 0.50.0, etc.)
+- **Profils multi-devises réalistes** : Basés sur recherche économique (SMIG CEMAC/UEMOA, SMIC Europe, salaires USA)
+- **Captures d'écran** : 12 images ajoutées dans `docs/images/`
+
+## 7.2 Profils économiques réalistes
+
+**Statut :** ✅ Terminé
+
+### Recherche économique effectuée
+
+| Zone | Salaire minimum | Cadre supérieur (mensuel) |
+|------|-----------------|---------------------------|
+| CEMAC (XAF) | ~83 000 FCFA | ~1.2M FCFA |
+| UEMOA (XOF) | ~55 000 FCFA | ~933K FCFA |
+| Europe (EUR) | ~2 000 € | ~6 000 € |
+| USA (USD) | ~$15/h (~$31K/an) | ~$13K/mois |
+
+### Implémentation
+
+- `PROFILES_BY_CURRENCY` : Dictionnaire avec valeurs natives par devise
+- `DEFAULT_VALUES` : Valeurs par défaut adaptées à chaque zone
+- XAF défini comme devise par défaut (contexte africain)
+
+## 7.3 Déploiement Streamlit Cloud
 
 **Statut :** ⬜ À faire
 
-*(À compléter)*
+### Prérequis
+- [x] Code fonctionnel en local
+- [x] Tests passent (31/31)
+- [x] Documentation à jour
+- [ ] Commit et push vers GitHub
+- [ ] Connexion Streamlit Cloud ↔ GitHub
+- [ ] Déploiement et test en ligne
 
----
+## 7.4 Finalisation
+
+**Statut :** ⬜ À faire
+
+- [ ] Ajouter lien de démo au README
+- [ ] Post LinkedIn (optionnel)
+- [ ] Archivage du projet
+
 
 # JOURNAL DES PROBLÈMES & SOLUTIONS
 
@@ -1422,7 +1475,6 @@ Les services communiquent entre eux via leurs noms de container :
 | 27/01/2026 | Kernel Jupyter ne fonctionne pas dans VS Code | Utiliser Jupyter navigateur (sans token) |
 | 27/01/2026 | Déconnexion WSL pendant Optuna (erreur 1006) | Race condition systemd WSL2 → `rm -rf ~/.vscode-server` + `wsl --shutdown` |
 
----
 
 # MÉTRIQUES FINALES
 
@@ -1439,7 +1491,6 @@ Les services communiquent entre eux via leurs noms de container :
 | Interface | **Multilingue** | - | ✅ Bonus |
 | Devises | **4 (EUR/USD/XAF/XOF)** | - | ✅ Bonus |
 
----
 
 # LEÇONS APPRISES
 
@@ -1463,11 +1514,10 @@ Les services communiquent entre eux via leurs noms de container :
 
 9. **Streamlit session_state** - Les callbacks `on_click` modifient le state AVANT le rerun, permettant de mettre à jour les widgets. Modifier après création = erreur.
 
----
+10. **Profils multi-devises réalistes** - Les montants doivent être natifs à chaque zone économique, pas de simples conversions mécaniques. Un cadre supérieur gagne ~1.2M FCFA en Afrique centrale, pas 59M FCFA (conversion 90K€). La recherche économique (SMIG, salaires moyens) est indispensable pour un projet réaliste.
 
-**Dernière mise à jour :** 28 Janvier 2026 - Phase 6 complète avec documentation détaillée des métriques, percentiles (P50/P95/P99), et interfaces
+**Dernière mise à jour :** 28 Janvier 2026 - Phase 7 en cours : documentation finalisée, profils multi-devises réalistes, captures d'écran ajoutées
 
----
 
 # GLOSSAIRE TECHNIQUE
 

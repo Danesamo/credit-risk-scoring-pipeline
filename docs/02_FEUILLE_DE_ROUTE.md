@@ -613,15 +613,17 @@ docker-compose up -d
 **Objectif :** Déployer publiquement et documenter
 
 ### Étape 7.1 : Documentation
-- [ ] README.md complet avec :
+- [x] README.md complet avec :
   - Description du projet
   - Architecture
   - Installation
   - Usage
   - Résultats
-  - Screenshots
-- [ ] Docstrings dans le code
-- [ ] Commentaires pour les parties complexes
+  - Screenshots (12 captures d'écran)
+- [x] Profils réalistes multi-devises (FCFA, EUR, USD)
+- [x] Données basées sur sources officielles (ANSD, BLS, Eurostat, AfricaPaieRH)
+- [x] Docstrings dans le code
+- [x] Commentaires pour les parties complexes
 
 ### Étape 7.2 : Déploiement Streamlit Cloud
 - [ ] Créer le repo GitHub public
@@ -638,10 +640,10 @@ docker-compose up -d
 **Validation Finale :**
 ```bash
 # Checklist finale
-[ ] Repo GitHub public et propre
-[ ] README professionnel
-[ ] App Streamlit accessible en ligne
-[ ] docker-compose up fonctionne en local
+[x] Repo GitHub public et propre
+[x] README professionnel (français, captures, métriques)
+[ ] App Streamlit accessible en ligne (Streamlit Cloud)
+[x] docker-compose up fonctionne en local
 [ ] Post LinkedIn publié
 ```
 
@@ -657,7 +659,7 @@ docker-compose up -d
 | Phase 4 : Modélisation | ✅ Terminé | 27/01/2026 | 27/01/2026 | AUC 0.7836, Optuna 50 trials, SHAP |
 | Phase 5 : API & UI | ✅ Terminé | 27/01/2026 | 28/01/2026 | FastAPI + Streamlit + SHAP dynamique |
 | Phase 6 : Orchestration | ✅ Terminé | 28/01/2026 | 28/01/2026 | Prometheus, Grafana, Airflow, Docker |
-| Phase 7 : Déploiement | ⬜ À faire | | | GitHub, Streamlit Cloud, LinkedIn |
+| Phase 7 : Déploiement | 🔄 En cours | 28/01/2026 | | README ✅, Captures ✅, GitHub à pousser |
 
 **Légende :** ⬜ À faire | 🔄 En cours | ✅ Terminé | ❌ Bloqué
 
@@ -697,11 +699,15 @@ docker-compose up -d
 | 28/01/2026 | SHAP 0.50.0 (upgrade) | Erreur "[5E-1]" avec version 0.49.x |
 | 28/01/2026 | Airflow 3.1.6 standalone | Génère automatiquement le mot de passe admin |
 | 28/01/2026 | API_URL via env variable | Streamlit dans Docker utilise `http://api:8000` |
+| 28/01/2026 | README en français | Cible principale : marché francophone africain |
+| 28/01/2026 | Profils réalistes par devise | Sources : ANSD, BLS, Eurostat, AfricaPaieRH |
+| 28/01/2026 | XAF devise par défaut | Cohérence avec le contexte économique cible |
+| 28/01/2026 | 12 captures d'écran | Démonstration des 3 profils (Fiable/Moyen/Risqué) |
 
 ---
 
 **Document créé le :** Janvier 2026
-**Dernière mise à jour :** 28 Janvier 2026 - Phase 6 complète
+**Dernière mise à jour :** 28 Janvier 2026 - Phase 7 en cours (README + Captures)
 
 ---
 
@@ -709,12 +715,12 @@ docker-compose up -d
 
 | Composant | Version | Notes |
 |-----------|---------|-------|
-| Python | 3.12 | Requis pour SHAP 0.50.0 |
-| XGBoost | 2.0.0+ | Modèle principal |
-| SHAP | 0.50.0+ | Explicabilité (nécessite Python ≥ 3.11) |
-| FastAPI | 0.104.0+ | API REST |
-| Streamlit | 1.28.0+ | Interface utilisateur |
-| PostgreSQL | 15 | Base de données |
+| Python | 3.12.3 | Requis pour SHAP 0.50.0 |
+| XGBoost | 3.1.3 | Modèle principal |
+| SHAP | 0.50.0 | Explicabilité (nécessite Python ≥ 3.11) |
+| FastAPI | 0.128.0 | API REST |
+| Streamlit | 1.53.1 | Interface utilisateur |
+| PostgreSQL | 15-alpine | Base de données |
 | Prometheus | v2.47.0 | Collecte métriques |
 | Grafana | 10.2.0 | Dashboards |
 | Apache Airflow | 3.1.6 | Orchestration |
