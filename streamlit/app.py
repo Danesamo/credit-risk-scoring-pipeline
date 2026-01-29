@@ -1290,7 +1290,7 @@ if st.button(f"🔍 {T['analyze_risk']}", type="primary", use_container_width=Tr
         st.markdown(f"##### {T['risk_indicator']}")
 
         # Afficher la barre avec couleur selon le risque
-        risk_pct = min(probability, 1.0)
+        risk_pct = float(min(probability, 1.0))
         col_left, col_bar, col_right = st.columns([1, 6, 1])
         with col_left:
             st.markdown("✅ 0%")
