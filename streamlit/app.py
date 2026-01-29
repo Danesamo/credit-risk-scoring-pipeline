@@ -1,19 +1,47 @@
 # =============================================================================
-# CREDIT RISK SCORING - Interface Streamlit
+# CREDIT RISK SCORING - Interface Streamlit (MODE STANDALONE)
 # =============================================================================
 # Interface multilingue (FR/EN) et multi-devises (XAF/XOF/EUR/USD)
 # Design: Épuré, impactant, orienté métier, international
+# Mode: Standalone - charge le modèle directement sans API
 # =============================================================================
 
 import streamlit as st
-import requests
 import os
+import json
+import joblib
+import numpy as np
+import pandas as pd
+import shap
+from pathlib import Path
 
 # =============================================================================
-# CONFIGURATION
+# CONFIGURATION - MODE STANDALONE
 # =============================================================================
 
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+# Chemins vers les artefacts du modèle
+BASE_DIR = Path(__file__).parent.parent
+MODELS_DIR = BASE_DIR / "models"
+
+MODEL_PATH = MODELS_DIR / "xgboost_credit_risk_v1.pkl"
+FEATURES_PATH = MODELS_DIR / "feature_names.json"
+METRICS_PATH = MODELS_DIR / "metrics.json"
+
+# =============================================================================
+# CHARGEMENT DU MODÈLE (cache pour performance)
+# =============================================================================
+
+@st.cache_resource
+def load_model():
+    """Charge le modèle XGBoost et crée l'explainer SHAP."""
+    model = joblib.load(MODEL_PATH)
+    with open(FEATURES_PATH, 'r') as f:
+        feature_names = json.load(f)
+    shap_explainer = shap.TreeExplainer(model)
+    return model, feature_names, shap_explainer
+
+# Charger au démarrage
+MODEL, FEATURE_NAMES_LIST, SHAP_EXPLAINER = load_model()
 
 # Taux de conversion vers EUR (base)
 EXCHANGE_RATES = {
@@ -765,28 +793,166 @@ def get_decision(probability):
         return f"❌ {T['credit_not_recommended']}", T["high_risk_client"]
 
 def call_api(data):
-    """Appelle l'API de prédiction."""
+    """Prédiction directe avec le modèle (mode standalone)."""
     try:
-        response = requests.post(f"{API_URL}/predict", json=data, timeout=10)
-        if response.status_code == 200:
-            return response.json(), None
+        # Créer un DataFrame avec toutes les features
+        df = pd.DataFrame({col: [0.0] for col in FEATURE_NAMES_LIST})
+
+        # Mapping des champs
+        field_mapping = {
+            'amt_income_total': 'amt_income_total',
+            'amt_credit': 'amt_credit',
+            'amt_annuity': 'amt_annuity',
+            'amt_goods_price': 'amt_goods_price',
+            'days_birth': 'days_birth',
+            'days_employed': 'days_employed',
+            'ext_source_1': 'ext_source_1',
+            'ext_source_2': 'ext_source_2',
+            'ext_source_3': 'ext_source_3',
+        }
+
+        # Remplir avec les valeurs fournies
+        for api_field, model_field in field_mapping.items():
+            if api_field in data and data[api_field] is not None:
+                if model_field in FEATURE_NAMES_LIST:
+                    df.loc[0, model_field] = float(data[api_field])
+
+        # Encoder code_gender
+        if 'code_gender' in data and 'code_gender' in FEATURE_NAMES_LIST:
+            df.loc[0, 'code_gender'] = 1.0 if data['code_gender'] == 'M' else 0.0
+
+        # Features dérivées ext_source
+        ext_sources = [data.get('ext_source_1') or 0, data.get('ext_source_2') or 0, data.get('ext_source_3') or 0]
+        valid_sources = [float(s) for s in ext_sources if s and s > 0]
+
+        if valid_sources:
+            if 'ext_source_mean' in FEATURE_NAMES_LIST:
+                df.loc[0, 'ext_source_mean'] = float(np.mean(valid_sources))
+            if 'ext_source_max' in FEATURE_NAMES_LIST:
+                df.loc[0, 'ext_source_max'] = float(max(valid_sources))
+            if 'ext_source_min' in FEATURE_NAMES_LIST:
+                df.loc[0, 'ext_source_min'] = float(min(valid_sources))
+
+        # Prédiction
+        proba = MODEL.predict_proba(df)[0][1]
+
+        # Niveau de risque et score
+        if proba < 0.3:
+            risk_level = "Faible"
+        elif proba < 0.6:
+            risk_level = "Moyen"
         else:
-            return None, f"Erreur API: {response.status_code}"
-    except requests.exceptions.ConnectionError:
-        return None, T["api_unavailable"]
+            risk_level = "Élevé"
+
+        score = int(850 - (proba * 550))
+        score = max(300, min(850, score))
+
+        return {
+            "probability": round(proba, 4),
+            "prediction": int(proba >= 0.5),
+            "risk_level": risk_level,
+            "score": score
+        }, None
+
     except Exception as e:
         return None, str(e)
 
 def call_explain_api(data):
-    """Appelle l'API d'explication SHAP."""
+    """Explication SHAP directe (mode standalone)."""
     try:
-        response = requests.post(f"{API_URL}/explain", json=data, timeout=15)
-        if response.status_code == 200:
-            return response.json(), None
+        # Créer un DataFrame avec toutes les features
+        df = pd.DataFrame({col: [0.0] for col in FEATURE_NAMES_LIST})
+
+        # Mapping des champs
+        field_mapping = {
+            'amt_income_total': 'amt_income_total',
+            'amt_credit': 'amt_credit',
+            'amt_annuity': 'amt_annuity',
+            'amt_goods_price': 'amt_goods_price',
+            'days_birth': 'days_birth',
+            'days_employed': 'days_employed',
+            'ext_source_1': 'ext_source_1',
+            'ext_source_2': 'ext_source_2',
+            'ext_source_3': 'ext_source_3',
+        }
+
+        for api_field, model_field in field_mapping.items():
+            if api_field in data and data[api_field] is not None:
+                if model_field in FEATURE_NAMES_LIST:
+                    df.loc[0, model_field] = float(data[api_field])
+
+        if 'code_gender' in data and 'code_gender' in FEATURE_NAMES_LIST:
+            df.loc[0, 'code_gender'] = 1.0 if data['code_gender'] == 'M' else 0.0
+
+        ext_sources = [data.get('ext_source_1') or 0, data.get('ext_source_2') or 0, data.get('ext_source_3') or 0]
+        valid_sources = [float(s) for s in ext_sources if s and s > 0]
+
+        if valid_sources:
+            if 'ext_source_mean' in FEATURE_NAMES_LIST:
+                df.loc[0, 'ext_source_mean'] = float(np.mean(valid_sources))
+            if 'ext_source_max' in FEATURE_NAMES_LIST:
+                df.loc[0, 'ext_source_max'] = float(max(valid_sources))
+            if 'ext_source_min' in FEATURE_NAMES_LIST:
+                df.loc[0, 'ext_source_min'] = float(min(valid_sources))
+
+        # Prédiction
+        proba = MODEL.predict_proba(df)[0][1]
+
+        if proba < 0.3:
+            risk_level = "Faible"
+        elif proba < 0.6:
+            risk_level = "Moyen"
         else:
-            return None, f"Erreur API: {response.status_code}"
-    except requests.exceptions.ConnectionError:
-        return None, T["api_unavailable"]
+            risk_level = "Élevé"
+
+        # SHAP values
+        shap_values = SHAP_EXPLAINER.shap_values(df)
+        if isinstance(shap_values, list):
+            shap_vals = shap_values[1][0]
+        else:
+            shap_vals = shap_values[0]
+
+        # Feature impacts
+        feature_impacts = []
+        for i, feat in enumerate(FEATURE_NAMES_LIST):
+            if abs(shap_vals[i]) > 0.001:
+                feature_impacts.append({
+                    "feature": feat,
+                    "value": float(df.loc[0, feat]),
+                    "shap_value": float(shap_vals[i]),
+                    "impact": "increases_risk" if shap_vals[i] > 0 else "reduces_risk"
+                })
+
+        feature_impacts.sort(key=lambda x: abs(x["shap_value"]), reverse=True)
+
+        # Filtrage dynamique selon le profil
+        MIN_IMPACT_THRESHOLD = 0.025
+        if proba < 0.40:
+            max_protective, max_risk = 6, 3
+        elif proba < 0.55:
+            max_protective, max_risk = 4, 4
+        else:
+            max_protective, max_risk = 3, 6
+
+        all_risk = [f for f in feature_impacts if f["shap_value"] > 0]
+        all_protective = [f for f in feature_impacts if f["shap_value"] < 0]
+
+        sig_risk = [f for f in all_risk if abs(f["shap_value"]) >= MIN_IMPACT_THRESHOLD]
+        sig_protective = [f for f in all_protective if abs(f["shap_value"]) >= MIN_IMPACT_THRESHOLD]
+
+        if len(sig_risk) < 2:
+            sig_risk = all_risk[:2]
+        if len(sig_protective) < 2:
+            sig_protective = all_protective[:2]
+
+        return {
+            "probability": round(proba, 4),
+            "base_probability": 0.0807,
+            "risk_level": risk_level,
+            "top_risk_factors": sig_risk[:max_risk],
+            "top_protective_factors": sig_protective[:max_protective]
+        }, None
+
     except Exception as e:
         return None, str(e)
 

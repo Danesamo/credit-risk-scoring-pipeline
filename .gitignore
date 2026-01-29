@@ -67,7 +67,7 @@ data/features/*
 # Fichiers CSV volumineux
 *.csv
 *.parquet
-*.pkl
+# *.pkl  # Désactivé pour permettre le modèle Streamlit Cloud
 *.pickle
 
 # -----------------
@@ -80,6 +80,11 @@ models/*.h5
 models/*.pt
 models/*.bin
 !models/.gitkeep
+# Exception: fichiers nécessaires pour Streamlit Cloud
+!models/xgboost_credit_risk_v1.pkl
+!models/feature_names.json
+!models/metrics.json
+!models/label_encoders.pkl
 
 # -----------------
 # Logs
