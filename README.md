@@ -2,6 +2,10 @@
 
 Pipeline complet de scoring de risque de crédit avec modèle ML, API, monitoring et interface interactive.
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://credit-risk-scoring-pipeline.streamlit.app/)
+
+**Tester l'application** : [credit-risk-scoring-pipeline.streamlit.app](https://credit-risk-scoring-pipeline.streamlit.app/)
+
 ---
 
 ## Aperçu
