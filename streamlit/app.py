@@ -214,6 +214,7 @@ TRANSLATIONS = {
     "fr": {
         "title": "Credit Risk Scoring",
         "subtitle": "Évaluez le risque de défaut en quelques secondes",
+        "disclaimer": "Version de démonstration. Modèle entraîné sur des données non africaines, adaptation locale en cours.",
         "client_info": "Informations du client",
         "annual_income": "Revenus annuels",
         "credit_amount": "Montant du crédit",
@@ -221,6 +222,10 @@ TRANSLATIONS = {
         "client_age": "Âge du client",
         "employment_years": "Ancienneté emploi (années)",
         "external_score": "Score crédit externe",
+        "gender": "Genre",
+        "male": "Homme",
+        "female": "Femme",
+        "help_gender": "Genre du demandeur (utilisé par le modèle)",
         "example_profiles": "Exemples de profils",
         "reliable_profile": "Profil Fiable",
         "medium_profile": "Profil Moyen",
@@ -235,9 +240,9 @@ TRANSLATIONS = {
         "positive_points": "Points positifs",
         "attention_points": "Points d'attention",
         "technical_details": "Détails techniques",
-        "low_risk": "Risque faible",
-        "medium_risk": "Risque modéré",
-        "high_risk": "Risque élevé",
+        "low_risk": "Faible",
+        "medium_risk": "Modéré",
+        "high_risk": "Élevé",
         "credit_recommended": "Crédit recommandé",
         "further_study": "Étude approfondie",
         "credit_not_recommended": "Crédit déconseillé",
@@ -267,6 +272,12 @@ TRANSLATIONS = {
         "api_unavailable": "API non disponible. Lancez: uvicorn api.main:app --reload",
         "current_profile": "Profil actif",
         "risk_position": "Position actuelle",
+        "threshold": "Seuil de refus",
+        "threshold_help": "Au-dessus de ce seuil de probabilité, le crédit est refusé. À ajuster selon le coût d'une erreur.",
+        "decision_at_threshold": "Décision au seuil choisi",
+        "granted": "Accordé",
+        "refused": "Refusé",
+        "threshold_caption": "Au seuil de {s}%, ce dossier serait",
         "default_risk": "de risque de défaut",
         "detailed_analysis": "Analyse détaillée de votre profil",
         "your_strengths": "Vos atouts",
@@ -286,6 +297,7 @@ TRANSLATIONS = {
     "en": {
         "title": "Credit Risk Scoring",
         "subtitle": "Assess default risk in seconds",
+        "disclaimer": "Demonstration version. Model trained on non-African data, local adaptation in progress.",
         "client_info": "Client Information",
         "annual_income": "Annual Income",
         "credit_amount": "Credit Amount",
@@ -293,6 +305,10 @@ TRANSLATIONS = {
         "client_age": "Client Age",
         "employment_years": "Employment (years)",
         "external_score": "External Credit Score",
+        "gender": "Gender",
+        "male": "Male",
+        "female": "Female",
+        "help_gender": "Applicant's gender (used by the model)",
         "example_profiles": "Example Profiles",
         "reliable_profile": "Reliable Profile",
         "medium_profile": "Medium Profile",
@@ -307,9 +323,9 @@ TRANSLATIONS = {
         "positive_points": "Positive Points",
         "attention_points": "Points of Attention",
         "technical_details": "Technical Details",
-        "low_risk": "Low Risk",
-        "medium_risk": "Medium Risk",
-        "high_risk": "High Risk",
+        "low_risk": "Low",
+        "medium_risk": "Medium",
+        "high_risk": "High",
         "credit_recommended": "Credit Recommended",
         "further_study": "Further Study Required",
         "credit_not_recommended": "Credit Not Recommended",
@@ -339,6 +355,12 @@ TRANSLATIONS = {
         "api_unavailable": "API unavailable. Run: uvicorn api.main:app --reload",
         "current_profile": "Active profile",
         "risk_position": "Current position",
+        "threshold": "Refusal threshold",
+        "threshold_help": "Above this probability threshold, credit is refused. Adjust it to the cost of an error.",
+        "decision_at_threshold": "Decision at chosen threshold",
+        "granted": "Granted",
+        "refused": "Refused",
+        "threshold_caption": "At a {s}% threshold, this application would be",
         "default_risk": "default risk",
         "detailed_analysis": "Detailed analysis of your profile",
         "your_strengths": "Your strengths",
@@ -734,6 +756,19 @@ with st.sidebar:
     st.info(f"**{currency}** = {EXCHANGE_RATES[currency]} pour 1 EUR")
 
     st.markdown("---")
+
+    # Seuil de decision ajustable (cout metier)
+    seuil = st.slider(
+        TRANSLATIONS[lang]["threshold"],
+        min_value=0.30,
+        max_value=0.70,
+        value=0.50,
+        step=0.05,
+        help=TRANSLATIONS[lang]["threshold_help"],
+        key="w_seuil"
+    )
+
+    st.markdown("---")
     st.markdown(
         f"""
         **Credit Risk Scoring v1.0**
@@ -792,57 +827,93 @@ def get_decision(probability):
     else:
         return f"❌ {T['credit_not_recommended']}", T["high_risk_client"]
 
+def build_model_input(data):
+    """Construit la ligne de features attendue par le modèle (mode standalone).
+
+    Remplit les champs bruts, encode le genre, agrège les scores externes, puis
+    recalcule les features dérivées attendues par le modèle (ratios financiers,
+    âge, ancienneté). Sans ce recalcul, ces features resteraient à 0 et le modèle
+    n'utiliserait quasiment que les scores externes : c'est l'écart
+    entraînement/service qu'on évite ici. Mêmes formules que build_features.py.
+    """
+    df = pd.DataFrame({col: [0.0] for col in FEATURE_NAMES_LIST})
+
+    field_mapping = {
+        'amt_income_total': 'amt_income_total',
+        'amt_credit': 'amt_credit',
+        'amt_annuity': 'amt_annuity',
+        'amt_goods_price': 'amt_goods_price',
+        'days_birth': 'days_birth',
+        'days_employed': 'days_employed',
+        'ext_source_1': 'ext_source_1',
+        'ext_source_2': 'ext_source_2',
+        'ext_source_3': 'ext_source_3',
+    }
+    for api_field, model_field in field_mapping.items():
+        if data.get(api_field) is not None and model_field in FEATURE_NAMES_LIST:
+            df.loc[0, model_field] = float(data[api_field])
+
+    # Genre (M=1, F=0)
+    if 'code_gender' in FEATURE_NAMES_LIST:
+        df.loc[0, 'code_gender'] = 1.0 if data.get('code_gender') == 'M' else 0.0
+
+    # Scores externes agrégés
+    ext_sources = [data.get('ext_source_1') or 0, data.get('ext_source_2') or 0, data.get('ext_source_3') or 0]
+    valid_sources = [float(s) for s in ext_sources if s and s > 0]
+    if valid_sources:
+        if 'ext_source_mean' in FEATURE_NAMES_LIST:
+            df.loc[0, 'ext_source_mean'] = float(np.mean(valid_sources))
+        if 'ext_source_max' in FEATURE_NAMES_LIST:
+            df.loc[0, 'ext_source_max'] = float(max(valid_sources))
+        if 'ext_source_min' in FEATURE_NAMES_LIST:
+            df.loc[0, 'ext_source_min'] = float(min(valid_sources))
+        if 'ext_source_std' in FEATURE_NAMES_LIST:
+            df.loc[0, 'ext_source_std'] = float(np.std(valid_sources))
+
+    # Features dérivées
+    income = float(data.get('amt_income_total') or 0)
+    credit = float(data.get('amt_credit') or 0)
+    annuity = float(data.get('amt_annuity') or 0)
+    goods = float(data.get('amt_goods_price') or 0)
+    days_birth = float(data.get('days_birth') or 0)
+    days_employed = float(data.get('days_employed') or 0)
+
+    def set_feat(name, value):
+        if name in FEATURE_NAMES_LIST:
+            df.loc[0, name] = float(value)
+
+    set_feat('credit_income_ratio', credit / (income + 1))
+    set_feat('annuity_income_ratio', annuity / (income + 1))
+    set_feat('credit_annuity_ratio', credit / (annuity + 1))
+    set_feat('goods_credit_ratio', goods / (credit + 1))
+
+    age_years = -days_birth / 365 if days_birth else 0.0
+    employed_years = -days_employed / 365 if days_employed else 0.0
+    employed_years = max(0.0, min(employed_years, 50.0))
+    set_feat('age_years', age_years)
+    set_feat('employed_years', employed_years)
+    set_feat('employed_to_age_ratio', employed_years / (age_years + 1))
+
+    return df
+
+def classify_risk(proba):
+    """Niveau de risque selon les seuils métier (alignés avec l'API)."""
+    if proba < 0.40:
+        return "Faible"
+    elif proba < 0.55:
+        return "Moyen"
+    return "Élevé"
+
 def call_api(data):
     """Prédiction directe avec le modèle (mode standalone)."""
     try:
-        # Créer un DataFrame avec toutes les features
-        df = pd.DataFrame({col: [0.0] for col in FEATURE_NAMES_LIST})
-
-        # Mapping des champs
-        field_mapping = {
-            'amt_income_total': 'amt_income_total',
-            'amt_credit': 'amt_credit',
-            'amt_annuity': 'amt_annuity',
-            'amt_goods_price': 'amt_goods_price',
-            'days_birth': 'days_birth',
-            'days_employed': 'days_employed',
-            'ext_source_1': 'ext_source_1',
-            'ext_source_2': 'ext_source_2',
-            'ext_source_3': 'ext_source_3',
-        }
-
-        # Remplir avec les valeurs fournies
-        for api_field, model_field in field_mapping.items():
-            if api_field in data and data[api_field] is not None:
-                if model_field in FEATURE_NAMES_LIST:
-                    df.loc[0, model_field] = float(data[api_field])
-
-        # Encoder code_gender
-        if 'code_gender' in data and 'code_gender' in FEATURE_NAMES_LIST:
-            df.loc[0, 'code_gender'] = 1.0 if data['code_gender'] == 'M' else 0.0
-
-        # Features dérivées ext_source
-        ext_sources = [data.get('ext_source_1') or 0, data.get('ext_source_2') or 0, data.get('ext_source_3') or 0]
-        valid_sources = [float(s) for s in ext_sources if s and s > 0]
-
-        if valid_sources:
-            if 'ext_source_mean' in FEATURE_NAMES_LIST:
-                df.loc[0, 'ext_source_mean'] = float(np.mean(valid_sources))
-            if 'ext_source_max' in FEATURE_NAMES_LIST:
-                df.loc[0, 'ext_source_max'] = float(max(valid_sources))
-            if 'ext_source_min' in FEATURE_NAMES_LIST:
-                df.loc[0, 'ext_source_min'] = float(min(valid_sources))
+        df = build_model_input(data)
 
         # Prédiction
         proba = MODEL.predict_proba(df)[0][1]
 
         # Niveau de risque et score
-        if proba < 0.3:
-            risk_level = "Faible"
-        elif proba < 0.6:
-            risk_level = "Moyen"
-        else:
-            risk_level = "Élevé"
+        risk_level = classify_risk(proba)
 
         score = int(850 - (proba * 550))
         score = max(300, min(850, score))
@@ -860,50 +931,12 @@ def call_api(data):
 def call_explain_api(data):
     """Explication SHAP directe (mode standalone)."""
     try:
-        # Créer un DataFrame avec toutes les features
-        df = pd.DataFrame({col: [0.0] for col in FEATURE_NAMES_LIST})
-
-        # Mapping des champs
-        field_mapping = {
-            'amt_income_total': 'amt_income_total',
-            'amt_credit': 'amt_credit',
-            'amt_annuity': 'amt_annuity',
-            'amt_goods_price': 'amt_goods_price',
-            'days_birth': 'days_birth',
-            'days_employed': 'days_employed',
-            'ext_source_1': 'ext_source_1',
-            'ext_source_2': 'ext_source_2',
-            'ext_source_3': 'ext_source_3',
-        }
-
-        for api_field, model_field in field_mapping.items():
-            if api_field in data and data[api_field] is not None:
-                if model_field in FEATURE_NAMES_LIST:
-                    df.loc[0, model_field] = float(data[api_field])
-
-        if 'code_gender' in data and 'code_gender' in FEATURE_NAMES_LIST:
-            df.loc[0, 'code_gender'] = 1.0 if data['code_gender'] == 'M' else 0.0
-
-        ext_sources = [data.get('ext_source_1') or 0, data.get('ext_source_2') or 0, data.get('ext_source_3') or 0]
-        valid_sources = [float(s) for s in ext_sources if s and s > 0]
-
-        if valid_sources:
-            if 'ext_source_mean' in FEATURE_NAMES_LIST:
-                df.loc[0, 'ext_source_mean'] = float(np.mean(valid_sources))
-            if 'ext_source_max' in FEATURE_NAMES_LIST:
-                df.loc[0, 'ext_source_max'] = float(max(valid_sources))
-            if 'ext_source_min' in FEATURE_NAMES_LIST:
-                df.loc[0, 'ext_source_min'] = float(min(valid_sources))
+        df = build_model_input(data)
 
         # Prédiction
         proba = MODEL.predict_proba(df)[0][1]
 
-        if proba < 0.3:
-            risk_level = "Faible"
-        elif proba < 0.6:
-            risk_level = "Moyen"
-        else:
-            risk_level = "Élevé"
+        risk_level = classify_risk(proba)
 
         # SHAP values
         shap_values = SHAP_EXPLAINER.shap_values(df)
@@ -1035,12 +1068,15 @@ DEFAULT_VALUES = {
 
 # Header - Grand titre visible
 st.markdown(f"""
-<div style="text-align: center; padding: 1rem 0 2rem 0;">
-    <h1 style="font-size: 3.5rem; font-weight: 900; margin: 0; letter-spacing: -1px;">
+<div style="text-align: center; padding: 1rem 0 0.5rem 0;">
+    <h1 style="font-size: 3rem; font-weight: 900; margin: 0; letter-spacing: -1px;">
         🏦 {T["title"]}
     </h1>
-    <p style="font-size: 1.3rem; opacity: 0.8; margin-top: 0.5rem;">
+    <p style="font-size: 1.2rem; opacity: 0.85; margin-top: 0.4rem;">
         {T["subtitle"]}
+    </p>
+    <p style="font-size: 0.85rem; opacity: 0.6; margin-top: 0.6rem; font-style: italic;">
+        {T["disclaimer"]}
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -1053,6 +1089,20 @@ st.markdown(f"### 📋 {T['client_info']}")
 
 # Valeurs par défaut selon la devise
 defaults = DEFAULT_VALUES[currency]
+
+# Initialiser les valeurs du formulaire une seule fois dans le session_state.
+# Les widgets ci-dessous utilisent uniquement key= (sans value=), ce qui évite
+# l'avertissement Streamlit "value= + Session State" affiché au choix d'un profil.
+for _key, _val in [
+    ("w_revenus", defaults["income"]),
+    ("w_credit", defaults["credit"]),
+    ("w_annuite", defaults["monthly"]),
+    ("w_age", 35),
+    ("w_anciennete", 5),
+    ("w_score", 0.5),
+]:
+    if _key not in st.session_state:
+        st.session_state[_key] = _val
 
 # Si un profil est sélectionné, mettre à jour les valeurs du formulaire
 # IMPORTANT: Ceci doit être fait AVANT la création des widgets
@@ -1076,7 +1126,6 @@ with col1:
         f"{T['annual_income']} ({CURRENCY_SYMBOLS[currency]})",
         min_value=0,
         max_value=int(1000000000 if currency in ["XAF", "XOF"] else 10000000),
-        value=defaults["income"],
         step=int(1000000 if currency in ["XAF", "XOF"] else 1000),
         help=T["help_income"],
         key="w_revenus"
@@ -1086,7 +1135,6 @@ with col1:
         f"{T['credit_amount']} ({CURRENCY_SYMBOLS[currency]})",
         min_value=0,
         max_value=int(5000000000 if currency in ["XAF", "XOF"] else 10000000),
-        value=defaults["credit"],
         step=int(5000000 if currency in ["XAF", "XOF"] else 5000),
         help=T["help_credit"],
         key="w_credit"
@@ -1096,7 +1144,6 @@ with col1:
         f"{T['monthly_payment']} ({CURRENCY_SYMBOLS[currency]})",
         min_value=0,
         max_value=int(50000000 if currency in ["XAF", "XOF"] else 100000),
-        value=defaults["monthly"],
         step=int(50000 if currency in ["XAF", "XOF"] else 50),
         help=T["help_monthly"],
         key="w_annuite"
@@ -1107,7 +1154,6 @@ with col2:
         T["client_age"],
         min_value=18,
         max_value=80,
-        value=35,
         help=T["help_age"],
         key="w_age"
     )
@@ -1116,7 +1162,6 @@ with col2:
         T["employment_years"],
         min_value=0,
         max_value=40,
-        value=5,
         help=T["help_employment"],
         key="w_anciennete"
     )
@@ -1125,10 +1170,18 @@ with col2:
         T["external_score"],
         min_value=0.0,
         max_value=1.0,
-        value=0.5,
         step=0.05,
         help=T["help_score"],
         key="w_score"
+    )
+
+    gender = st.radio(
+        T["gender"],
+        options=["M", "F"],
+        format_func=lambda x: T["male"] if x == "M" else T["female"],
+        horizontal=True,
+        help=T["help_gender"],
+        key="w_gender"
     )
 
 # =============================================================================
@@ -1244,7 +1297,7 @@ if st.button(f"🔍 {T['analyze_risk']}", type="primary", use_container_width=Tr
         "ext_source_1": score_externe,
         "ext_source_2": score_externe,
         "ext_source_3": score_externe,
-        "code_gender": "M"
+        "code_gender": gender
     }
 
     with st.spinner(T["analyzing"]):
@@ -1301,6 +1354,18 @@ if st.button(f"🔍 {T['analyze_risk']}", type="primary", use_container_width=Tr
 
         # Afficher la position exacte
         st.caption(f"↑ {T['risk_position']}: **{probability*100:.1f}%** {T['default_risk']}")
+
+        # Décision au seuil choisi (curseur de la sidebar) - illustre le coût métier
+        seuil_choisi = st.session_state.get("w_seuil", 0.50)
+        if probability < seuil_choisi:
+            decision_seuil, icon_seuil = T["granted"], "✅"
+        else:
+            decision_seuil, icon_seuil = T["refused"], "❌"
+        st.markdown(
+            f"**{T['decision_at_threshold']}** : "
+            f"{T['threshold_caption'].format(s=int(seuil_choisi*100))} "
+            f"{icon_seuil} **{decision_seuil}**"
+        )
 
         # =============================================================
         # ANALYSE SHAP DÉTAILLÉE - Visualisation moderne

@@ -194,6 +194,94 @@ class ExplainResponse(BaseModel):
 
 
 # =============================================================================
+# PREPARATION DES FEATURES (partagee par /predict et /explain)
+# =============================================================================
+
+def build_model_input(client_dict: Dict[str, Any]) -> pd.DataFrame:
+    """Construit la ligne de features attendue par le modele.
+
+    Remplit les champs bruts fournis, encode le genre, agrege les scores
+    externes, puis recalcule les features derivees que le modele attend
+    (ratios financiers, age, anciennete). Sans ce recalcul, ces features
+    resteraient a 0 et le modele n'utiliserait quasiment que les scores
+    externes : c'est l'ecart entrainement/service a eviter.
+    """
+    df = pd.DataFrame({col: [0.0] for col in feature_names})
+
+    # Champs bruts fournis par l'API
+    field_mapping = {
+        'amt_income_total': 'amt_income_total',
+        'amt_credit': 'amt_credit',
+        'amt_annuity': 'amt_annuity',
+        'amt_goods_price': 'amt_goods_price',
+        'days_birth': 'days_birth',
+        'days_employed': 'days_employed',
+        'ext_source_1': 'ext_source_1',
+        'ext_source_2': 'ext_source_2',
+        'ext_source_3': 'ext_source_3',
+    }
+    for api_field, model_field in field_mapping.items():
+        if client_dict.get(api_field) is not None and model_field in feature_names:
+            df.loc[0, model_field] = float(client_dict[api_field])
+
+    # Genre (M=1, F=0)
+    if 'code_gender' in feature_names:
+        df.loc[0, 'code_gender'] = 1.0 if client_dict.get('code_gender') == 'M' else 0.0
+
+    # Scores externes agreges
+    ext_sources = [
+        client_dict.get('ext_source_1') or 0,
+        client_dict.get('ext_source_2') or 0,
+        client_dict.get('ext_source_3') or 0,
+    ]
+    valid_sources = [float(s) for s in ext_sources if s and s > 0]
+    if valid_sources:
+        if 'ext_source_mean' in feature_names:
+            df.loc[0, 'ext_source_mean'] = float(np.mean(valid_sources))
+        if 'ext_source_max' in feature_names:
+            df.loc[0, 'ext_source_max'] = float(max(valid_sources))
+        if 'ext_source_min' in feature_names:
+            df.loc[0, 'ext_source_min'] = float(min(valid_sources))
+        if 'ext_source_std' in feature_names:
+            df.loc[0, 'ext_source_std'] = float(np.std(valid_sources))
+
+    # Features derivees (memes formules que src/features/build_features.py)
+    income = float(client_dict.get('amt_income_total') or 0)
+    credit = float(client_dict.get('amt_credit') or 0)
+    annuity = float(client_dict.get('amt_annuity') or 0)
+    goods = float(client_dict.get('amt_goods_price') or 0)
+    days_birth = float(client_dict.get('days_birth') or 0)
+    days_employed = float(client_dict.get('days_employed') or 0)
+
+    def set_feat(name: str, value: float) -> None:
+        if name in feature_names:
+            df.loc[0, name] = float(value)
+
+    set_feat('credit_income_ratio', credit / (income + 1))
+    set_feat('annuity_income_ratio', annuity / (income + 1))
+    set_feat('credit_annuity_ratio', credit / (annuity + 1))
+    set_feat('goods_credit_ratio', goods / (credit + 1))
+
+    age_years = -days_birth / 365 if days_birth else 0.0
+    employed_years = -days_employed / 365 if days_employed else 0.0
+    employed_years = max(0.0, min(employed_years, 50.0))
+    set_feat('age_years', age_years)
+    set_feat('employed_years', employed_years)
+    set_feat('employed_to_age_ratio', employed_years / (age_years + 1))
+
+    return df
+
+
+def classify_risk(proba: float) -> str:
+    """Niveau de risque selon les seuils metier (alignes avec la Streamlit)."""
+    if proba < 0.40:
+        return "Faible"
+    elif proba < 0.55:
+        return "Moyen"
+    return "Élevé"
+
+
+# =============================================================================
 # APPLICATION FASTAPI
 # =============================================================================
 
@@ -307,68 +395,15 @@ async def predict(client: ClientData):
     prediction_start = time.time()
 
     try:
-        # Convertir les données client en dictionnaire
-        client_dict = client.model_dump()
-
-        # Créer un DataFrame avec TOUTES les features (initialisées à 0.0 en float)
-        df = pd.DataFrame({col: [0.0] for col in feature_names})
-
-        # Mapping des champs API vers les features du modèle
-        field_mapping = {
-            'amt_income_total': 'amt_income_total',
-            'amt_credit': 'amt_credit',
-            'amt_annuity': 'amt_annuity',
-            'amt_goods_price': 'amt_goods_price',
-            'days_birth': 'days_birth',
-            'days_employed': 'days_employed',
-            'ext_source_1': 'ext_source_1',
-            'ext_source_2': 'ext_source_2',
-            'ext_source_3': 'ext_source_3',
-        }
-
-        # Remplir avec les valeurs fournies
-        for api_field, model_field in field_mapping.items():
-            if api_field in client_dict and client_dict[api_field] is not None:
-                if model_field in feature_names:
-                    df.loc[0, model_field] = float(client_dict[api_field])
-
-        # Encoder code_gender (M=1, F=0)
-        if 'code_gender' in client_dict and 'code_gender' in feature_names:
-            gender = client_dict['code_gender']
-            if gender == 'M':
-                df.loc[0, 'code_gender'] = 1.0
-            elif gender == 'F':
-                df.loc[0, 'code_gender'] = 0.0
-            else:
-                df.loc[0, 'code_gender'] = 0.0
-
-        # Calculer des features dérivées importantes
-        ext_sources = [
-            client_dict.get('ext_source_1') or 0,
-            client_dict.get('ext_source_2') or 0,
-            client_dict.get('ext_source_3') or 0
-        ]
-        valid_sources = [float(s) for s in ext_sources if s and s > 0]
-
-        if valid_sources:
-            if 'ext_source_mean' in feature_names:
-                df.loc[0, 'ext_source_mean'] = float(np.mean(valid_sources))
-            if 'ext_source_max' in feature_names:
-                df.loc[0, 'ext_source_max'] = float(max(valid_sources))
-            if 'ext_source_min' in feature_names:
-                df.loc[0, 'ext_source_min'] = float(min(valid_sources))
+        # Préparer la ligne de features (helper partagé avec /explain)
+        df = build_model_input(client.model_dump())
 
         # Prédiction
         proba = model.predict_proba(df)[0][1]  # Probabilité de défaut
         pred = int(proba >= 0.5)
 
-        # Niveau de risque
-        if proba < 0.3:
-            risk_level = "Faible"
-        elif proba < 0.6:
-            risk_level = "Moyen"
-        else:
-            risk_level = "Élevé"
+        # Niveau de risque (seuils métier alignés avec la Streamlit)
+        risk_level = classify_risk(proba)
 
         # Score de crédit (inverse de la probabilité, échelle 300-850)
         score = int(850 - (proba * 550))
@@ -418,67 +453,14 @@ async def explain(client: ClientData):
         raise HTTPException(status_code=503, detail="Explainer SHAP non disponible")
 
     try:
-        # Convertir les données client en dictionnaire
-        client_dict = client.model_dump()
-
-        # Créer un DataFrame avec TOUTES les features (initialisées à 0.0 en float)
-        df = pd.DataFrame({col: [0.0] for col in feature_names})
-
-        # Mapping des champs API vers les features du modèle
-        field_mapping = {
-            'amt_income_total': 'amt_income_total',
-            'amt_credit': 'amt_credit',
-            'amt_annuity': 'amt_annuity',
-            'amt_goods_price': 'amt_goods_price',
-            'days_birth': 'days_birth',
-            'days_employed': 'days_employed',
-            'ext_source_1': 'ext_source_1',
-            'ext_source_2': 'ext_source_2',
-            'ext_source_3': 'ext_source_3',
-        }
-
-        # Remplir avec les valeurs fournies
-        for api_field, model_field in field_mapping.items():
-            if api_field in client_dict and client_dict[api_field] is not None:
-                if model_field in feature_names:
-                    df.loc[0, model_field] = float(client_dict[api_field])
-
-        # Encoder code_gender (M=1, F=0)
-        if 'code_gender' in client_dict and 'code_gender' in feature_names:
-            gender = client_dict['code_gender']
-            if gender == 'M':
-                df.loc[0, 'code_gender'] = 1.0
-            elif gender == 'F':
-                df.loc[0, 'code_gender'] = 0.0
-            else:
-                df.loc[0, 'code_gender'] = 0.0
-
-        # Calculer des features dérivées importantes
-        ext_sources = [
-            client_dict.get('ext_source_1') or 0,
-            client_dict.get('ext_source_2') or 0,
-            client_dict.get('ext_source_3') or 0
-        ]
-        valid_sources = [float(s) for s in ext_sources if s and s > 0]
-
-        if valid_sources:
-            if 'ext_source_mean' in feature_names:
-                df.loc[0, 'ext_source_mean'] = float(np.mean(valid_sources))
-            if 'ext_source_max' in feature_names:
-                df.loc[0, 'ext_source_max'] = float(max(valid_sources))
-            if 'ext_source_min' in feature_names:
-                df.loc[0, 'ext_source_min'] = float(min(valid_sources))
+        # Préparer la ligne de features (helper partagé avec /predict)
+        df = build_model_input(client.model_dump())
 
         # Prédiction
         proba = model.predict_proba(df)[0][1]
 
-        # Niveau de risque
-        if proba < 0.3:
-            risk_level = "Faible"
-        elif proba < 0.6:
-            risk_level = "Moyen"
-        else:
-            risk_level = "Élevé"
+        # Niveau de risque (seuils métier alignés avec la Streamlit)
+        risk_level = classify_risk(proba)
 
         # Calcul des SHAP values
         shap_values = shap_explainer.shap_values(df)
