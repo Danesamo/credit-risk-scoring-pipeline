@@ -39,8 +39,8 @@ L'application analyse le profil d'un client et fournit une décision en temps r�
 ### Profil Fiable - Crédit recommandé
 Client cadre supérieur avec excellent historique de crédit.
 
-![Profil Fiable - Formulaire](docs/images/profil_fiable_1.png)
-![Profil Fiable - Résultat](docs/images/profil_fiable_2.png)
+![Profil Fiable - Formulaire](docs/v1/images/profil_fiable_1.png)
+![Profil Fiable - Résultat](docs/v1/images/profil_fiable_2.png)
 
 **Résultat :** Score 683/850 | Risque 30.3% | ✅ Crédit recommandé
 
@@ -49,8 +49,8 @@ Client cadre supérieur avec excellent historique de crédit.
 ### Profil Moyen - Étude approfondie
 Client cadre moyen avec historique de crédit correct mais pas excellent.
 
-![Profil Moyen - Formulaire](docs/images/profil_moyen_1.png)
-![Profil Moyen - Résultat](docs/images/profil_moyen_2.png)
+![Profil Moyen - Formulaire](docs/v1/images/profil_moyen_1.png)
+![Profil Moyen - Résultat](docs/v1/images/profil_moyen_2.png)
 
 **Résultat :** Score 563/850 | Risque 52.0% | ⚠️ Étude approfondie
 
@@ -59,8 +59,8 @@ Client cadre moyen avec historique de crédit correct mais pas excellent.
 ### Profil Risqué - Crédit déconseillé
 Client débutant avec faibles revenus et mauvais historique.
 
-![Profil Risqué - Formulaire](docs/images/profil_risque_1.png)
-![Profil Risqué - Résultat](docs/images/profil_risque_2.png)
+![Profil Risqué - Formulaire](docs/v1/images/profil_risque_1.png)
+![Profil Risqué - Résultat](docs/v1/images/profil_risque_2.png)
 
 **Résultat :** Score 424/850 | Risque 77.3% | ❌ Crédit déconseillé
 
@@ -68,15 +68,15 @@ Client débutant avec faibles revenus et mauvais historique.
 
 **Grafana** - Dashboard de supervision en temps réel
 
-![Grafana Dashboard](docs/images/grafana.png)
+![Grafana Dashboard](docs/v1/images/grafana.png)
 
 **Prometheus** - Collecte des métriques API
 
-![Prometheus Metrics](docs/images/prometheus.png)
+![Prometheus Metrics](docs/v1/images/prometheus.png)
 
 **Airflow** - Orchestration du pipeline avec 4 tâches automatisées
 
-![Airflow DAG](docs/images/airflow.png)
+![Airflow DAG](docs/v1/images/airflow.png)
 
 
 ## Performance du Modèle
@@ -291,8 +291,8 @@ curl -X POST http://localhost:8000/predict \
 
 ## Documentation
 
-- [Étude du Projet](docs/01_ETUDE_PROJET.md) - Contexte métier, méthodologie, cadre réglementaire (Bâle II/III)
-- [Rapport d'Avancement](docs/03_RAPPORT_AVANCEMENT.md) - Journal de bord, résultats, problèmes résolus, leçons apprises
+- [Étude du Projet](docs/v1/01_ETUDE_PROJET.md) - Contexte métier, méthodologie, cadre réglementaire (Bâle II/III)
+- [Rapport d'Avancement](docs/v1/03_RAPPORT_AVANCEMENT.md) - Journal de bord, résultats, problèmes résolus, leçons apprises
 
 ---
 

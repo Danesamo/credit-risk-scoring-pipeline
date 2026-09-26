@@ -1,0 +1,60 @@
+# Carnet de conception : registre des décisions V2
+
+Chaque décision importante est consignée ici : ce qui est décidé, pourquoi, les alternatives écartées, et qui a validé.
+Une décision peut être révisée : on ne l'efface pas, on ajoute une nouvelle entrée qui la remplace et on met à jour le statut de l'ancienne.
+
+**Statuts :** Proposée · Validée · Remplacée par D-xxx · Abandonnée
+
+---
+
+## D-001 : Zone géographique
+- **Date :** 26/09/2026
+- **Décision :** UEMOA, avec le Bénin comme pays pilote. Puis extension aux autres pays de l'UEMOA, puis étude comparative UEMOA / CEMAC.
+- **Pourquoi :** Daniela vit au Bénin (accès au terrain et au réseau). Commencer par un seul pays permet d'étudier le contexte en profondeur. La BCEAO étant commune à l'UEMOA, l'extension aux autres pays de la zone est naturelle. La CEMAC, avec une autre banque centrale et un autre régulateur, se prête à une comparaison.
+- **Alternatives écartées :** étude directe de toute l'Afrique francophone (trop large pour une étude sérieuse).
+- **Statut :** Validée par Daniela.
+
+## D-002 : Segment prioritaire
+- **Date :** 26/09/2026
+- **Décision :** priorité aux banques. L'étude de contexte couvre néanmoins tout l'écosystème du crédit (banques, microfinance / SFD, mobile money, fintechs, partenariats banque-opérateur).
+- **Pourquoi :** c'est l'intérêt de départ de Daniela. Mais dans l'UEMOA, une partie du crédit, notamment le nano-crédit sur mobile money, passe par des partenariats où la banque porte le risque. Ignorer ces canaux ferait passer à côté de la réalité.
+- **Alternatives écartées :** limiter l'étude aux banques traditionnelles.
+- **Statut :** Validée par Daniela. Le choix final du maillon ciblé sera fait en P2 (question Q-01).
+
+## D-003 : Méthode de travail BMAD
+- **Date :** 26/09/2026
+- **Décision :** utiliser la BMAD Method (v6.12, septembre 2026), installée localement dans le projet via `npx skills add`, par Daniela.
+- **Pourquoi :** BMAD structure le travail en étapes (clarifier, planifier, construire, ajuster) qui correspondent à l'approche « comprendre avant de construire ». Une installation locale au projet ne touche pas les autres projets (CivicWall, Fit App).
+- **Alternatives écartées :** plugin Claude Code global (s'appliquerait à tous les projets).
+- **Statut :** Validée par Daniela (méthode). Mode d'installation proposé par Claude.
+
+## D-004 : Organisation du dépôt et de la documentation
+- **Date :** 26/09/2026
+- **Décision :** un seul dépôt. La V1 est figée par le tag Git `v1.0`, la V2 est développée sur la branche `v2` en faisant évoluer le code existant, et sa documentation est placée dans `docs/v2/`.
+- **Pourquoi :**
+  - Les versions sont le rôle de Git : le tag conserve la V1 exactement telle qu'elle est, et la démo Streamlit en ligne continue de fonctionner.
+  - Un sous-répertoire `v2/` pour le code dupliquerait tout le code, obligerait à maintenir deux copies et casserait l'historique qui montre comment la V1 est devenue la V2.
+  - L'historique Git de la branche `v2` raconte l'évolution, ce qui a de la valeur pour un recruteur ou un partenaire.
+  - La documentation V1 reste en place comme référence ; la documentation V2 est isolée dans son propre dossier pour être facile à suivre.
+- **Alternatives écartées :** nouveau dépôt (perte du lien avec la V1) ; sous-répertoire `v2/` pour le code (duplication).
+- **Statut :** Proposée par Claude, à la demande de Daniela (« à toi de me dire comment on organise »).
+
+## D-007 : Documentation rangée par version (précise D-004)
+- **Date :** 26/09/2026
+- **Décision :** le code reste unique et évolue sur la branche `v2`, la V1 étant conservée par le tag `v1.0`. La documentation est rangée par version : `docs/v1/` (étude, rapport d'avancement, images de la V1) et `docs/v2/`. Ce rangement se fait uniquement sur la branche `v2`, avec `git mv` pour conserver l'historique, puis les liens du README et des docs V2 sont mis à jour.
+- **Pourquoi :** Daniela a relevé que `docs/v2/` imbriqué à côté des fichiers V1 en vrac manquait de lisibilité. Le code n'a qu'une version vivante (Git gère les versions), alors que les deux documentations coexistent et doivent être symétriques.
+- **Alternatives écartées :** dossiers `V1/` et `V2/` à la racine contenant chacun le code (duplication, perte de la lecture de l'évolution dans Git, risque de casser la démo Streamlit Cloud qui pointe vers `streamlit/app.py`).
+- **Statut :** Validée par Daniela.
+
+## D-005 : Cœur fonctionnel de la V2
+- **Date :** 26/09/2026
+- **Décision :** cœur = scoring d'octroi (PD à 12 mois) et structuration de l'offre (montant, durée, taux selon le profil). Provisionnement du portefeuille (pertes attendues) en extension.
+- **Pourquoi :** cela répond directement à la demande de Daniela (« à qui accorder un prêt, et quel type de prêt à quel profil »), prolonge la V1, et couvre la chaîne d'un département risque de crédit.
+- **Alternatives écartées :** prévision du chiffre d'affaires d'entreprises (autre segment : crédit aux PME).
+- **Statut :** Proposée. À confirmer en P2 à la lumière de l'étude.
+
+## D-006 : Répartition des rôles
+- **Date :** 26/09/2026
+- **Décision :** Claude analyse, propose, explique et documente. Daniela valide et exécute les commandes. Aucune action sans son accord.
+- **Pourquoi :** projet réel, que Daniela doit maîtriser de bout en bout et pouvoir défendre.
+- **Statut :** Validée par Daniela.
