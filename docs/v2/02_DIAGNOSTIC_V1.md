@@ -28,7 +28,7 @@ Résultats publiés : AUC 0.7836, Gini 0.567, rappel 70 %, précision 18,6 % (se
 
 | # | Défaut | Gravité | Référence |
 |---|---|---|---|
-| 1 | Dépendance à des scores externes absents du contexte africain | Critique | SHAP : `ext_source_mean` = 40 % de l'importance |
+| 1 | Dépendance à des scores externes absents du contexte africain | Critique | SHAP : `ext_source_mean` 1re variable (11 % de l'importance totale, 3 fois la 2e) ; scores externes cumulés ≈ 20 % |
 | 2 | Écart entre entraînement et production | Critique | [api/main.py:209](../../api/main.py#L209), [build_features.py:483](../../src/features/build_features.py#L483) |
 | 3 | Probabilités non calibrées | Critique | `scale_pos_weight=11.4`, [api/main.py:409](../../api/main.py#L409), [api/main.py:482](../../api/main.py#L482) |
 | 4 | Genre parmi les variables les plus influentes | Élevée | SHAP : `code_gender` au 2e rang |
@@ -38,7 +38,7 @@ Résultats publiés : AUC 0.7836, Gini 0.567, rappel 70 %, précision 18,6 % (se
 | 8 | Pas de MLOps réel | Moyenne | DAG Airflow, stockage du modèle |
 
 ### 3.1 Dépendance aux scores externes
-Les variables `EXT_SOURCE_1/2/3` sont des scores de bureaux de crédit dont l'origine n'est pas documentée par Home Credit. Leur moyenne pèse 40 % de l'importance SHAP. La population visée en Afrique (secteur informel, peu bancarisée) n'a justement pas ce type de score. **Le modèle performe surtout sur ceux qui ont déjà un historique.**
+Les variables `EXT_SOURCE_1/2/3` sont des scores de bureaux de crédit dont l'origine n'est pas documentée par Home Credit. Leur moyenne est de loin la variable la plus influente : 11 % de l'importance SHAP totale, trois fois plus que la 2e variable ; toutes les variables `ext_source` réunies pèsent environ 20 % (recalcul du 02/10/2026 sur 2 000 clients). Le rapport V1 annonçait « 40 % » : c'était une confusion entre la valeur SHAP moyenne (0,40) et un pourcentage. La population visée en Afrique (secteur informel, peu bancarisée) n'a justement pas ce type de score. **Le modèle performe surtout sur ceux qui ont déjà un historique.**
 
 ### 3.2 Écart entre entraînement et production
 Le modèle attend 223 variables ; l'API n'en remplit qu'environ 17 et met toutes les autres à 0. À l'entraînement, les valeurs manquantes (hors comptes et sommes) étaient remplacées par la médiane. En production, chaque client ressemble donc à un profil qui n'existe pas dans les données d'entraînement.

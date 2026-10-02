@@ -1,0 +1,4 @@
+# Surcharge d'équipe (commitée) de la configuration BMAD.
+# Les livrables BMAD sont rangés avec le reste de la documentation V2 (décision D-008).
+[core]
+output_folder = "{project-root}/docs/v2"

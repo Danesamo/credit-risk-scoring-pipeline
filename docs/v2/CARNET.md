@@ -14,6 +14,12 @@ Une décision peut être révisée : on ne l'efface pas, on ajoute une nouvelle 
 - **Alternatives écartées :** étude directe de toute l'Afrique francophone (trop large pour une étude sérieuse).
 - **Statut :** Validée par Daniela.
 
+## D-009 : Trois niveaux de périmètre (précise D-001)
+- **Date :** 02/10/2026
+- **Décision :** l'étude puise à trois niveaux. Cadre UEMOA (règles communes : BCEAO, supervision bancaire, monnaie, microfinance, monnaie électronique, bureaux de crédit). Comparaison Côte d'Ivoire et Sénégal (marchés les plus grands et les mieux documentés). Terrain Bénin (entretiens, partenaires, validation). Le produit est conçu selon les règles UEMOA et paramétré, testé et validé d'abord pour le Bénin ; l'extension à un autre pays de l'UEMOA consiste à le recalibrer.
+- **Pourquoi :** les règles communes rendent inutile une étude pays par pays ; la Côte d'Ivoire et le Sénégal fournissent les chiffres que le Bénin seul ne fournirait pas ; la présence de Daniela à Cotonou rend le terrain accessible. La P1 vérifiera le choix du pilote sur critères explicites (données, accès au terrain, taille du marché).
+- **Statut :** Validée par Daniela.
+
 ## D-002 : Segment prioritaire
 - **Date :** 26/09/2026
 - **Décision :** priorité aux banques. L'étude de contexte couvre néanmoins tout l'écosystème du crédit (banques, microfinance / SFD, mobile money, fintechs, partenariats banque-opérateur).
@@ -23,7 +29,7 @@ Une décision peut être révisée : on ne l'efface pas, on ajoute une nouvelle 
 
 ## D-003 : Méthode de travail BMAD
 - **Date :** 26/09/2026
-- **Décision :** utiliser la BMAD Method (v6.12, septembre 2026), installée localement dans le projet via `npx skills add`, par Daniela.
+- **Décision :** utiliser la BMAD Method (installée le 02/10/2026, version 6.13.0-next), installée localement dans le projet via `npx skills add`, par Daniela.
 - **Pourquoi :** BMAD structure le travail en étapes (clarifier, planifier, construire, ajuster) qui correspondent à l'approche « comprendre avant de construire ». Une installation locale au projet ne touche pas les autres projets (CivicWall, Fit App).
 - **Alternatives écartées :** plugin Claude Code global (s'appliquerait à tous les projets).
 - **Statut :** Validée par Daniela (méthode). Mode d'installation proposé par Claude.
@@ -45,6 +51,13 @@ Une décision peut être révisée : on ne l'efface pas, on ajoute une nouvelle 
 - **Pourquoi :** Daniela a relevé que `docs/v2/` imbriqué à côté des fichiers V1 en vrac manquait de lisibilité. Le code n'a qu'une version vivante (Git gère les versions), alors que les deux documentations coexistent et doivent être symétriques.
 - **Alternatives écartées :** dossiers `V1/` et `V2/` à la racine contenant chacun le code (duplication, perte de la lecture de l'évolution dans Git, risque de casser la démo Streamlit Cloud qui pointe vers `streamlit/app.py`).
 - **Statut :** Validée par Daniela.
+
+## D-008 : Emplacement des livrables BMAD
+- **Date :** 02/10/2026
+- **Décision :** les livrables BMAD sont écrits dans `docs/v2/` (surcharge `output_folder` dans `_bmad/custom/config.toml`, fichier commité). La configuration BMAD (`_bmad/`, `.agents/skills/`, `.claude/skills/`, `skills-lock.json`) est versionnée avec le projet ; seuls les réglages personnels (`*.user.toml`) restent hors Git.
+- **Pourquoi :** toute la documentation V2 au même endroit ; installation BMAD reproductible à l'identique.
+- **Alternatives écartées :** dossier par défaut `_bmad-output/` à la racine (documentation éclatée en deux endroits).
+- **Statut :** Proposée par Claude, à valider par Daniela.
 
 ## D-005 : Cœur fonctionnel de la V2
 - **Date :** 26/09/2026

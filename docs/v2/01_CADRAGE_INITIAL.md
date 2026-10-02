@@ -11,6 +11,7 @@
 - **Constat de départ :** la V1 repose sur des données Kaggle (Home Credit, 2018, clients d'Asie et d'Europe de l'Est). Elle démontre une architecture, mais ne répond pas à une réalité africaine.
 - **Ambition :** un projet **réel**, pas fictif, qui puisse servir à des entreprises du secteur bancaire et financier.
 - **Principe de travail :** comprendre avant de construire. On ne réinvente pas la roue : l'architecture V1 est la base, et elle sera améliorée là où c'est justifié, avec des outils à jour (septembre 2026).
+- **Analyser l'existant avant de construire :** identifier ce qui a déjà été fait (solutions, études, méthodes évaluées), les comparer, et définir précisément la valeur ajoutée du projet (02/10/2026). Axe obligatoire de l'étude P1.
 - **Exigence :** avancer pas à pas, comprendre chaque choix d'architecture et ses alternatives, être challengée, tout documenter.
 
 ## 2. Réponses de cadrage (26/09/2026)

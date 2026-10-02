@@ -33,12 +33,14 @@ Légende : ⬜ À faire · 🔄 En cours · ✅ Terminé · ⏸ En pause · ❌ 
 | P0-4 | Annuler la modification de `airflow/db/airflow.db` | Daniela | ✅ 26/09 | |
 | P0-5 | Figer la V1 : tag `v1.0` + push du tag | Daniela | ✅ 26/09 | Tag visible sur GitHub |
 | P0-6 | Créer la branche `v2` | Daniela | ✅ 26/09 | |
-| P0-7 | Vérifier les prérequis BMAD dans le terminal Ubuntu WSL (node, npm, git, uv, Python 3.11+) | Daniela | ⬜ | `which node` doit pointer vers Linux, pas vers `/mnt/c/` |
-| P0-8 | Installer BMAD v6.12 depuis `Credit_Risk_Scoring_Project` (`npx skills add ...`) | Daniela | ⬜ | Choisir Claude Code et une portée « projet » |
-| P0-9 | Nouvelle session Claude Code (VS Code reste ouvert sur `~/projects`), lancer `bmad setup` puis `bmad status` | Daniela | ⬜ | Ne PAS lancer `bmad-build` |
-| P0-10 | Configurer l'emplacement des sorties BMAD dans `docs/v2/` | Daniela + Claude | ⬜ | À consigner dans le carnet |
+| P0-7 | Vérifier les prérequis BMAD dans le terminal Ubuntu WSL (node, npm, git, uv, Python 3.11+) | Daniela | ✅ 02/10 | Node 22, Python 3.12, uv 0.12 |
+| P0-8 | Installer BMAD depuis `Credit_Risk_Scoring_Project` (`npx skills add ...`) | Daniela | ✅ 02/10 | 12 skills (version 6.13.0-next), portée projet, `.agents/skills/` + liens dans `.claude/skills/` |
+| P0-9 | Nouvelle session Claude Code (VS Code reste ouvert sur `~/projects`), lancer `bmad setup` puis `bmad status` | Daniela | ✅ 02/10 | |
+| P0-10 | Configurer l'emplacement des sorties BMAD dans `docs/v2/` | Claude | ✅ 02/10 | Décision D-008 |
 | P0-11 | Ranger la documentation V1 dans `docs/v1/` (`git mv`) et mettre à jour les liens | Daniela (commandes) + Claude (liens) | ✅ 26/09 | Sur la branche `v2` uniquement (décision D-007) |
-| P0-12 | Premier commit de la documentation V2 sur la branche `v2` | Daniela | ⬜ | Après validation des documents |
+| P0-12 | Premier commit de la documentation V2 sur la branche `v2` | Daniela | ✅ 26/09 | Commit `f0c162c`, branche `v2` poussée sur GitHub |
+| P0-13 | Commit du dispositif BMAD et des mises à jour de la documentation | Daniela | ⬜ | Clôture de la P0 |
+| P0-14 | Créer l'initiative BMAD `uemoa-pilote-benin` (dans le chat atelier) | Daniela | ⬜ | Suit la décision D-009 |
 
 ---
 
@@ -51,6 +53,7 @@ Légende : ⬜ À faire · 🔄 En cours · ✅ Terminé · ⏸ En pause · ❌ 
 | Q-03 | Quelle définition du défaut retenir (90 jours de retard ? autre selon produit) ? | 26/09/2026 | P2 | Ouvert |
 | Q-04 | Qui est l'utilisateur de l'outil (analyste crédit, direction des risques, agent commercial) ? | 26/09/2026 | P2 | Ouvert |
 | Q-05 | Quels outils techniques ajouter (dbt, qualité des données, CI/CD, suivi d'expériences) ? | 26/09/2026 | P4 | Ouvert |
+| Q-07 | Comment associer la communauté et de futurs utilisateurs (post ou sondage LinkedIn, questionnaire, entretiens avec des professionnels du crédit) sans dévoiler tout le projet ? | 02/10/2026 | Fin de P1 | En cours : post de lancement prêt (appel aux données, solutions existantes, entretiens) |
 | Q-06 | Quel cadre réglementaire s'applique exactement (BCEAO, normes comptables de provisionnement, protection des données au Bénin) ? | 26/09/2026 | P1 | Ouvert, à sourcer |
 
 ---
