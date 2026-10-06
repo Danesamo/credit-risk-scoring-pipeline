@@ -1,8 +1,8 @@
 # Fiche de suivi : V2 Scoring de crédit UEMOA
 
-**Dernière mise à jour :** 26/09/2026
-**Phase en cours :** P0 Mise en place
-**Prochaine action :** Daniela installe BMAD (voir tâches P0)
+**Dernière mise à jour :** 05/10/2026
+**Phase en cours :** P1 Étude de contexte
+**Prochaine action :** valider les questions de recherche, puis lancer l'axe A dans le chat atelier
 
 ---
 
@@ -10,8 +10,8 @@
 
 | Phase | Intitulé | Livrable attendu | Statut | Début | Fin |
 |---|---|---|---|---|---|
-| P0 | Mise en place | Tag `v1.0`, branche `v2`, BMAD opérationnel, documentation initiale | 🔄 En cours | 25/09/2026 | |
-| P1 | Étude de contexte UEMOA / Bénin | Rapport sourcé et daté (sept. 2026) dans `etude/` | ⬜ À faire | | |
+| P0 | Mise en place | Tag `v1.0`, branche `v2`, BMAD opérationnel, documentation initiale | ✅ Terminé | 25/09/2026 | 05/10/2026 |
+| P1 | Étude de contexte UEMOA / Bénin | Rapports sourcés et datés dans `initiative-uemoa-pilote-benin/` | 🔄 En cours | 05/10/2026 | |
 | P2 | Cadrage produit | Product brief puis PRD (BMAD) | ⬜ À faire | | |
 | P3 | Stratégie de données | Plan de données justifié (sources, partenaires, synthétique) | ⬜ À faire | | |
 | P4 | Architecture V2 | Document d'architecture : garder / corriger / remplacer, outils à jour | ⬜ À faire | | |
@@ -23,7 +23,21 @@ Légende : ⬜ À faire · 🔄 En cours · ✅ Terminé · ⏸ En pause · ❌ 
 
 ---
 
-## 2. Tâches de la phase en cours (P0)
+## 2. Tâches de la phase en cours (P1)
+
+Le détail de l'avancement par axe est dans [00_QUESTIONS_DE_RECHERCHE.md](initiative-uemoa-pilote-benin/00_QUESTIONS_DE_RECHERCHE.md).
+
+| # | Tâche | Responsable | Statut | Remarque |
+|---|---|---|---|---|
+| P1-T1 | Questions de recherche (7 axes, 20 questions) | Claude + Daniela | ✅ 06/10 | Validées comme base évolutive |
+| P1-T2 | Glossaire initial | Claude | ✅ 06/10 | Alimenté au fil de l'étude (D-010) |
+| P1-T3 | Axes A, B, G puis point de décision 1 (périmètre provisoire) | Atelier BMAD + Daniela | ⬜ | D-011 |
+| P1-T4 | Guide d'entretien terrain | Claude + Daniela | ⬜ | Après les axes A et B |
+| P1-T5 | Axes E, F, C, D dans le périmètre provisoire | Atelier BMAD + Daniela | ⬜ | |
+| P1-T6 | Synthèse et point de décision 2 (périmètre définitif) | Claude + Daniela | ⬜ | Entrée de la P2 |
+| P1-T7 | Post LinkedIn de lancement (appel aux ressources) | Daniela | ⬜ | Publication prévue le 06/10 |
+
+## Tâches de la phase P0 (terminée)
 
 | # | Tâche | Responsable | Statut | Remarque |
 |---|---|---|---|---|
@@ -39,8 +53,8 @@ Légende : ⬜ À faire · 🔄 En cours · ✅ Terminé · ⏸ En pause · ❌ 
 | P0-10 | Configurer l'emplacement des sorties BMAD dans `docs/v2/` | Claude | ✅ 02/10 | Décision D-008 |
 | P0-11 | Ranger la documentation V1 dans `docs/v1/` (`git mv`) et mettre à jour les liens | Daniela (commandes) + Claude (liens) | ✅ 26/09 | Sur la branche `v2` uniquement (décision D-007) |
 | P0-12 | Premier commit de la documentation V2 sur la branche `v2` | Daniela | ✅ 26/09 | Commit `f0c162c`, branche `v2` poussée sur GitHub |
-| P0-13 | Commit du dispositif BMAD et des mises à jour de la documentation | Daniela | ⬜ | Clôture de la P0 |
-| P0-14 | Créer l'initiative BMAD `uemoa-pilote-benin` (dans le chat atelier) | Daniela | ⬜ | Suit la décision D-009 |
+| P0-13 | Commit du dispositif BMAD et des mises à jour de la documentation | Daniela | ✅ 03/10 | Commit `e1e38f5` |
+| P0-14 | Créer l'initiative BMAD `uemoa-pilote-benin` (dans le chat atelier) | Daniela | ✅ 05/10 | `docs/v2/initiative-uemoa-pilote-benin/` |
 
 ---
 

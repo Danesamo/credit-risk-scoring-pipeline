@@ -59,6 +59,25 @@ Une décision peut être révisée : on ne l'efface pas, on ajoute une nouvelle 
 - **Alternatives écartées :** dossier par défaut `_bmad-output/` à la racine (documentation éclatée en deux endroits).
 - **Statut :** Proposée par Claude, à valider par Daniela.
 
+## D-010 : Double exigence recherche et industrie
+- **Date :** 06/10/2026
+- **Décision :** le projet suit à la fois les règles de la recherche (revue de l'existant, méthode explicite, sources citées, résultats reproductibles) et celles de l'industrie (conformité réglementaire, contraintes opérationnelles, mise en production). Un glossaire (`GLOSSAIRE.md`) fixe chaque terme clé avec ses définitions réglementaire, académique et pratique quand elles diffèrent.
+- **Pourquoi :** un même mot peut changer de sens selon l'interlocuteur (le « défaut » d'un régulateur, d'un article scientifique et d'un analyste crédit). Sans définitions fixées, le modèle risque de prédire autre chose que ce dont la banque a besoin.
+- **Statut :** Validée par Daniela.
+
+## D-011 : Étude en entonnoir avec deux points de décision
+- **Date :** 06/10/2026
+- **Décision :** on ne répond pas aux 20 questions avant de circonscrire le projet. Les axes A, B et G donnent une vue d'ensemble, puis un premier point de décision fixe un périmètre provisoire (segment, type de crédit, définition du défaut, utilisateur). Les axes E, F, C et D sont ensuite menés uniquement dans ce périmètre. Un second point de décision fixe le périmètre définitif en entrée de la P2.
+- **Pourquoi :** éviter la dispersion soulevée par Daniela. Chercher sur tout l'écosystème en profondeur coûterait des semaines sans garantir une décision.
+- **Statut :** Validée par Daniela.
+
+## D-012 : Bibliographie unique et vérification des sources
+- **Date :** 06/10/2026
+- **Décision :** toutes les sources sont référencées dans `REFERENCES.md` avec un identifiant `R-xxx`, leur type (primaire ou secondaire), leur date de consultation et, pour les pages web importantes, une copie archivée. Les rapports citent ces identifiants. Chaque source est vérifiée ensemble (Daniela et Claude) avant de fonder une décision.
+- **Pourquoi :** exigence de rigueur de la recherche (D-010) ; traçabilité de chaque affirmation ; les pages web changent ou disparaissent.
+- **Alternatives écartées :** liens dispersés dans chaque rapport (impossible à vérifier et à maintenir). Un fichier BibTeX pourra être généré plus tard si le projet donne lieu à un article.
+- **Statut :** Validée par Daniela.
+
 ## D-005 : Cœur fonctionnel de la V2
 - **Date :** 26/09/2026
 - **Décision :** cœur = scoring d'octroi (PD à 12 mois) et structuration de l'offre (montant, durée, taux selon le profil). Provisionnement du portefeuille (pertes attendues) en extension.
