@@ -62,13 +62,16 @@ Le détail de l'avancement par axe est dans [00_QUESTIONS_DE_RECHERCHE.md](initi
 
 | # | Question | Posée le | Sera tranchée en | Statut |
 |---|---|---|---|---|
-| Q-01 | Quel maillon de l'écosystème crédit cibler en priorité (banque seule, banque + partenariat mobile money, microfinance/SFD) ? | 25/09/2026 | P1 puis P2 | Ouvert |
+| Q-01 | Quel maillon de l'écosystème crédit cibler en priorité (banque seule, banque + partenariat mobile money, microfinance/SFD) ? | 25/09/2026 | Point de décision 1 | Ouvert. Axe A : SFD n°1 (besoin), banques n°2. Orientation de travail de Daniela (08/10) : les banques, capables de payer l'outil ; piste d'un cœur commun adaptable aux grandes IMF |
+| Q-08 | Qui paiera l'outil, et quel modèle économique ? (les SFD ont le besoin, les banques ont les moyens) | 08/10/2026 | P2 | Ouvert |
+| Q-09 | Les banques de l'UEMOA disposent-elles déjà d'outils de scoring ou d'aide à l'octroi (internes, éditeurs, scores du bureau de crédit) ? | 08/10/2026 | Recherche dédiée après l'axe B (D-013), puis entretiens | Ouvert, conditionne la valeur ajoutée |
+| Q-10 | Comment accéder aux données des institutions (outil déployé chez elles sur leurs données, pilote sous accord de confidentialité, démonstrateur sur données synthétiques calibrées) ? | 08/10/2026 | Axe E et P3 | Volet légal traité (axe B) : déploiement chez la banque favorisé, données hébergées dans l'UMOA, contrat soumis à la Commission bancaire, déclaration APDP |
 | Q-02 | Quelle source de données réelle ou réaliste utiliser ? | 25/09/2026 | P3 | Ouvert |
-| Q-03 | Quelle définition du défaut retenir (90 jours de retard ? autre selon produit) ? | 26/09/2026 | P2 | Ouvert |
+| Q-03 | Quelle définition du défaut retenir (90 jours de retard ? autre selon produit) ? | 26/09/2026 | Point de décision 1 | Piste solide (axe B) : particulier en banque = échéance impayée depuis plus de 90 jours, appréciée par crédit (Instr. 026-11-2016, art. 8 et 11). Restent : traitement des créances restructurées, vérification de R-031 |
 | Q-04 | Qui est l'utilisateur de l'outil (analyste crédit, direction des risques, agent commercial) ? | 26/09/2026 | P2 | Ouvert |
 | Q-05 | Quels outils techniques ajouter (dbt, qualité des données, CI/CD, suivi d'expériences) ? | 26/09/2026 | P4 | Ouvert |
 | Q-07 | Comment associer la communauté et de futurs utilisateurs (post ou sondage LinkedIn, questionnaire, entretiens avec des professionnels du crédit) sans dévoiler tout le projet ? | 02/10/2026 | Fin de P1 | En cours : post de lancement prêt (appel aux données, solutions existantes, entretiens) |
-| Q-06 | Quel cadre réglementaire s'applique exactement (BCEAO, normes comptables de provisionnement, protection des données au Bénin) ? | 26/09/2026 | P1 | Ouvert, à sourcer |
+| Q-06 | Quel cadre réglementaire s'applique exactement (BCEAO, normes comptables de provisionnement, protection des données au Bénin) ? | 26/09/2026 | P1 | Largement traité (axe B, sources non vérifiées). Restent : loi microfinance 2025-14 et Code du numérique promulgué non lus (QO-B1, QO-B2), validation juridique |
 
 ---
 

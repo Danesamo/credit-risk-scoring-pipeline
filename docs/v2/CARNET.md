@@ -78,6 +78,12 @@ Une décision peut être révisée : on ne l'efface pas, on ajoute une nouvelle 
 - **Alternatives écartées :** liens dispersés dans chaque rapport (impossible à vérifier et à maintenir). Un fichier BibTeX pourra être généré plus tard si le projet donne lieu à un article.
 - **Statut :** Validée par Daniela.
 
+## D-013 : Question 21 (outils existants des banques) avancée avant le point de décision 1
+- **Date :** 08/10/2026
+- **Décision :** la question 21 (outils de scoring ou d'aide à l'octroi déjà utilisés par les banques de l'UEMOA) est traitée par une recherche dédiée juste après l'axe B, sans attendre l'axe F. Exception assumée à l'entonnoir de D-011. On ne s'appuie pas sur des hypothèses : on vérifie.
+- **Pourquoi :** la réponse conditionne la valeur ajoutée du projet, donc l'orientation vers les banques (Q-01) ; elle prépare aussi les entretiens, où Daniela doit montrer qu'elle connaît déjà l'existant pour être crédible.
+- **Statut :** Validée par Daniela.
+
 ## D-005 : Cœur fonctionnel de la V2
 - **Date :** 26/09/2026
 - **Décision :** cœur = scoring d'octroi (PD à 12 mois) et structuration de l'offre (montant, durée, taux selon le profil). Provisionnement du portefeuille (pertes attendues) en extension.

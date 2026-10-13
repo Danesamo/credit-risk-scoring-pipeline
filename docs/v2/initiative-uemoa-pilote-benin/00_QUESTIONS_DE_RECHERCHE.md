@@ -86,7 +86,8 @@ Les questions de recherche ne sont pas posées telles quelles aux professionnels
 
 | # | Question | Ajoutée le | Origine | Axe |
 |---|---|---|---|---|
-| | *(aucune pour l'instant)* | | | |
+| 21 | Quels outils de scoring ou d'aide à l'octroi les banques de l'UEMOA utilisent-elles déjà (internes, éditeurs de logiciels, scores du bureau de crédit), et que leur manque-t-il ? | 08/10/2026 | Daniela, après lecture de l'axe A | F |
+| 22 | Comment les institutions partagent-elles leurs données avec un prestataire (déploiement chez elles, accord de confidentialité, anonymisation), et que permet la loi ? | 08/10/2026 | Daniela, après lecture de l'axe A | E (et B pour le cadre légal) |
 
 ---
 
@@ -94,8 +95,9 @@ Les questions de recherche ne sont pas posées telles quelles aux professionnels
 
 | Axe | Type de recherche (`bmad-deep-recon`) | Statut | Rapport |
 |---|---|---|---|
-| A. Marché | market | ⬜ À faire | |
-| B. Réglementation | domain | ⬜ À faire | |
+| A. Marché | market | ✅ 06/10/2026 (sources non encore vérifiées) | [research-axe-a-marche-du-credit-uemoa](research-axe-a-marche-du-credit-uemoa/research-axe-a-marche-du-credit-uemoa.md) |
+| B. Réglementation | domain | ✅ 08/10/2026 (sources non vérifiées ; passe de contradiction non faite) | [research-axe-b-cadre-reglementaire-uemoa](research-axe-b-cadre-reglementaire-uemoa/research-axe-b-cadre-reglementaire-uemoa.md) |
+| Question 21 : outils existants des banques (avancée, D-013) | competitive | ⬜ À faire | |
 | G. Pays pilote | choix entre candidats | ⬜ À faire | |
 | **Point de décision 1 : périmètre provisoire** | | ⬜ À faire | Carnet |
 | E. Données disponibles | technical | ⬜ À faire | |

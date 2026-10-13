@@ -29,6 +29,7 @@ claims_overturned: 2
 - « à vérifier » signale une affirmation dont la source n'a pas pu être lue en entier ou n'est pas fiable.
 - Confiance par affirmation : **haute** (source primaire récente, lue en entier), **moyenne** (une seule source crédible, ou lue partiellement), **basse** (ancienne, faible ou contestée).
 - Limite majeure : presque tous les chiffres viennent d'une seule famille d'éditeurs, la BCEAO et la Commission bancaire de l'UMOA. Le FMI et la Banque mondiale les confirment, mais à partir des mêmes données de base. Il y a donc concordance, pas indépendance.
+- **Erratum du 08/10/2026 (d'après l'axe B)** : la « norme de 3 % » des SFD citée dans ce rapport est une norme de référence de la BCEAO, pas une norme prudentielle (aucune base juridique trouvée). Le taux d'usure des banques est de 14 % depuis le 01/06/2026.
 
 ---
 
