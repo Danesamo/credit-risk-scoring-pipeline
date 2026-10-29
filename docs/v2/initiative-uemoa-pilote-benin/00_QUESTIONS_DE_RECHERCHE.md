@@ -97,11 +97,10 @@ Les questions de recherche ne sont pas posées telles quelles aux professionnels
 |---|---|---|---|
 | A. Marché | market | ✅ 06/10/2026 (sources non encore vérifiées) | [research-axe-a-marche-du-credit-uemoa](research-axe-a-marche-du-credit-uemoa/research-axe-a-marche-du-credit-uemoa.md) |
 | B. Réglementation | domain | ✅ 08/10/2026 (sources non vérifiées ; passe de contradiction non faite) | [research-axe-b-cadre-reglementaire-uemoa](research-axe-b-cadre-reglementaire-uemoa/research-axe-b-cadre-reglementaire-uemoa.md) |
-| Question 21 : outils existants des banques (avancée, D-013) | competitive | ⬜ À faire | |
-| G. Pays pilote | choix entre candidats | ⬜ À faire | |
+| Question 21 : outils existants des banques (avancée, D-013) | competitive | ✅ 29/10/2026 (R-121 vérifiée ; autres sources non vérifiées) | [research-q21-outils-de-scoring-uemoa](research-q21-outils-de-scoring-uemoa/research-q21-outils-de-scoring-uemoa.md) |
+| G. Pays pilote | section de synthèse (D-015) | ✅ 29/10/2026 | [G_PAYS_PILOTE.md](G_PAYS_PILOTE.md) |
 | **Point de décision 1 : périmètre provisoire** | | ⬜ À faire | Carnet |
-| E. Données disponibles | technical | ⬜ À faire | |
-| F. Solutions existantes | competitive + academic-lit | ⬜ À faire | |
-| C. Infrastructure de données | domain | ⬜ À faire | |
+| **C + E fusionnés : données et accès** (voies du verrou Q-11, dont PI-SPI) | technical | ⬜ À faire | |
+| F. Littérature scientifique seule (le volet concurrence est traité par Q21) | academic-lit | ⬜ À faire | |
 | D. Emprunteurs | user-voice + terrain | ⬜ À faire | |
 | **Point de décision 2 : périmètre définitif** | | ⬜ À faire | Synthèse générale, réponses à Q-01 à Q-06 |

@@ -33,7 +33,7 @@
 
 ### 2.4 Méthode
 - **BMAD Method** confirmée (l'oral « MCP Bimat » désignait BMAD).
-- Daniela installe et configure BMAD elle-même, à partir d'un plan fourni par Claude ; les problèmes sont corrigés ensemble.
+- Daniela installe et configure BMAD elle-même, à partir d'un plan préparé pour elle ; les problèmes sont corrigés ensemble.
 
 ### 2.5 Ce que l'outil doit aider à décider (réponse de Daniela)
 - Savoir **à qui accorder un prêt ou non**, en restant dans le cadre des défauts bancaires.
@@ -84,7 +84,7 @@ Document : `~/projects/Career_Portfolio_2026/PLAN_CARRIERE_PORTFOLIO.md`.
 
 | Contrainte | Détail |
 |---|---|
-| Rôle | Daniela exécute les commandes ; Claude propose, explique, documente |
+| Rôle | Daniela exécute les commandes ; l'assistant propose, explique, documente |
 | Validation | Aucune action sans l'accord de Daniela |
 | Date de référence | Septembre 2026 : réalités, besoins et technologies doivent être à jour |
 | Données | Pas de dataset africain public équivalent à Home Credit connu à ce jour (à confirmer en P1) |

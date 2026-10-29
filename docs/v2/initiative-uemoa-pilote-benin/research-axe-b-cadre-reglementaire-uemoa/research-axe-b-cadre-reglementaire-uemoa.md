@@ -22,6 +22,8 @@ claims_overturned: 1
 **Orientation :** banques en priorité, puis IMF de grande taille. Cadre UMOA, transposition au Bénin.
 **Recherche menée le :** 08/10/2026, en deux tours suivis d'une contre-vérification indépendante (méthode `bmad-deep-recon`, niveau standard, vérification « high », sans passe de contradiction à la demande de Daniela).
 
+> **Vérification du 29/10/2026.** La réserve n°2 de la synthèse est levée pour les articles qui portent les conclusions. La **version promulguée** du Code du numérique (loi n°2017-20 du 20 avril 2018) a été obtenue avec sa couche texte [R-100], et les **articles 389, 401, 407 et 437 ont été lus intégralement** : ils confirment mot pour mot la lecture faite à partir de la version adoptée. QO-B2 est donc levée pour ces quatre articles ; elle reste ouverte pour les articles 386 et 391, non relus. Précision apportée par la lecture : l'art. 437 fixe un délai de réponse de 60 jours, et l'art. 407 pt 8 vise aussi les traitements comportant des appréciations sur les « difficultés sociales » des personnes.
+
 **Comment lire ce rapport**
 - Chaque règle cite son **texte officiel et son article**, puis la source `[R-xxx]` de la [bibliographie](../../REFERENCES.md). Aucune source n'est encore vérifiée ensemble : aucune ne fonde une décision à ce stade.
 - Chaque règle porte un **statut** :
