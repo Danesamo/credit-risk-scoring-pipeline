@@ -99,7 +99,7 @@ Les questions de recherche ne sont pas posées telles quelles aux professionnels
 | B. Réglementation | domain | ✅ 08/10/2026 (sources non vérifiées ; passe de contradiction non faite) | [research-axe-b-cadre-reglementaire-uemoa](research-axe-b-cadre-reglementaire-uemoa/research-axe-b-cadre-reglementaire-uemoa.md) |
 | Question 21 : outils existants des banques (avancée, D-013) | competitive | ✅ 29/10/2026 (R-121 vérifiée ; autres sources non vérifiées) | [research-q21-outils-de-scoring-uemoa](research-q21-outils-de-scoring-uemoa/research-q21-outils-de-scoring-uemoa.md) |
 | G. Pays pilote | section de synthèse (D-015) | ✅ 29/10/2026 | [G_PAYS_PILOTE.md](G_PAYS_PILOTE.md) |
-| **Point de décision 1 : périmètre provisoire** | | ⬜ À faire | Carnet |
+| **Point de décision 1 : périmètre provisoire** | | ✅ 22/11/2026 | [POINT_DECISION_1.md](POINT_DECISION_1.md), décisions D-016 à D-020 |
 | **C + E fusionnés : données et accès** (voies du verrou Q-11, dont PI-SPI) | technical | ⬜ À faire | |
 | F. Littérature scientifique seule (le volet concurrence est traité par Q21) | academic-lit | ⬜ À faire | |
 | D. Emprunteurs | user-voice + terrain | ⬜ À faire | |

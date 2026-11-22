@@ -97,6 +97,49 @@ Une décision peut être révisée : on ne l'efface pas, on ajoute une nouvelle 
 - **Pourquoi :** Daniela a demandé que le resserrement ne coûte rien à la suite. Deux propositions initiales ont donc été retirées : la fusion de la question 21 avec tout l'axe F, qui aurait fait perdre la revue de littérature (exigence de D-010), et l'allègement de l'axe C, que l'orientation vers les flux mobile money (D-014) rend au contraire central. Aucune vérification n'est sacrifiée.
 - **Statut :** Validée par Daniela, sous la condition qu'elle a posée : aucun impact négatif sur la suite.
 
+---
+
+# Point de décision 1 : le périmètre provisoire (22/11/2026)
+
+Les cinq décisions ci-dessous ont été prises ensemble le 22/11/2026, sur la base du document [POINT_DECISION_1.md](initiative-uemoa-pilote-benin/POINT_DECISION_1.md). Elles sont **provisoires** au sens de D-011 : le point de décision 2, en fin de P1, les confirmera ou les corrigera.
+
+## D-016 : Segment ciblé, avec repli explicite
+- **Date :** 22/11/2026
+- **Décision :** cibler les **particuliers et les très petites entreprises (entreprises individuelles) des banques classiques**, hors filiales d'opérateurs télécoms. **Repli validé en même temps que le choix principal** : si le terrain confirme que les banques se désengagent de ce segment pour une raison de rentabilité, l'acheteur bascule vers les **IMF de grande taille** (article 44), supervisées comme les banques, donc atteignables sans reconstruire l'outil.
+- **Pourquoi :** aucune banque classique de la zone ne documente d'outil de scoring statistique pour ce segment (question 21) ; le concurrent identifié couvre les PME et non les particuliers [R-121 vérifiée] ; le besoin est massif (8,7 % des adultes empruntent à une institution contre 43 % à la famille) ; la concentration bancaire béninoise joue en faveur du projet, 4 banques portant 63 % du crédit.
+- **Ce qui fragilise, assumé :** au Bénin, ce segment est passé de 20,1 % à 9,0 % des crédits accordés entre 2020 et 2025, et recule de 30 % sur la seule année 2025 [R-006 vérifiée], pendant que le crédit total doublait. L'appétit réel des banques reste la question la plus risquée du périmètre, et aucun rapport ne la tranchera : elle est en tête du guide d'entretien.
+- **Alternatives écartées :** cibler directement les IMF (besoin plus visible mais moyens plus faibles, cadre juridique moins établi) ; cibler le crédit digital (déjà automatisé, donnée détenue par les opérateurs).
+- **Statut :** Validée par Daniela, à titre provisoire, le repli étant validé explicitement.
+
+## D-017 : Produit de crédit
+- **Date :** 22/11/2026
+- **Décision :** le crédit d'un **montant modeste à un particulier ou à une entreprise individuelle, accordé par une banque, remboursable par échéances**. Sont exclus le nano-crédit digital de 7 à 30 jours, le crédit aux PME constituées, le crédit immobilier et l'équipement lourd.
+- **Pourquoi :** le nano-crédit est déjà automatisé par les opérateurs qui détiennent la donnée, et sa tarification pose une question de conformité au taux d'usure non tranchée ; les PME constituées sont le terrain du concurrent et supposent des états financiers que la cible n'a pas ; l'immobilier relève d'un autre horizon de risque et d'un autre métier.
+- **Statut :** Validée par Daniela.
+
+## D-018 : Définition du défaut (répond à Q-03)
+- **Date :** 22/11/2026
+- **Décision :** le défaut est **une échéance impayée depuis plus de 90 jours sur le crédit considéré**, apprécié **par crédit** et sans contamination des autres crédits du client. Un **indicateur d'alerte à 30 jours** est construit en complément, sans remplacer la cible réglementaire.
+- **Pourquoi :** c'est la seule définition à la fois réglementaire et comparable au standard international. Source lue mot pour mot dans le texte officiel le 29/10/2026 : Instruction BCEAO n°026-11-2016, article 8 point 2 pour le seuil, article 11 pour l'absence de contagion sur la clientèle de détail [R-031 vérifiée]. Le délai de 180 jours ne vise que les États, les organismes publics et les PME, donc pas la cible.
+- **Reste ouvert :** le traitement des **créances restructurées**, que la réglementation classe parmi les créances en souffrance. Les compter ou non comme un défaut change la variable cible. À trancher avec un professionnel.
+- **Statut :** Validée par Daniela. C'est la décision la mieux étayée du point.
+
+## D-019 : Utilisateur et rôle de l'outil (répond à Q-04)
+- **Date :** 22/11/2026
+- **Décision :** l'utilisateur est **l'analyste crédit de la banque, qui garde la décision**. L'outil propose et explique, il ne décide jamais. Formulation de Daniela : « il doit toujours y avoir un professionnel qui pilote l'outil ».
+- **Pourquoi :** ce n'est pas une préférence mais une contrainte légale vérifiée [R-100] : une décision produisant des effets significatifs ne peut être prise sur le seul fondement d'un traitement automatisé (Code du numérique, art. 401), et le client peut exiger les informations utiles sur la logique de la décision sous 60 jours (art. 437).
+- **Conséquences de conception, à porter dès l'architecture :** motifs lisibles par l'analyste et par le client ; possibilité pour l'analyste de passer outre, avec enregistrement de son motif ; la direction des risques est l'acheteur, l'analyste l'utilisateur quotidien, et les deux se convainquent par des arguments différents.
+- **Statut :** Validée par Daniela.
+
+## D-020 : Voies d'accès aux données
+- **Date :** 22/11/2026
+- **Décision :** instruire **trois voies par ordre de priorité, sans en abandonner aucune** : (1) les données propres de la banque et le rapport du bureau de crédit ; (2) les relevés apportés par le client avec son consentement exprès ; (3) les flux du paiement instantané de la BCEAO. La donnée des opérateurs télécoms est **écartée**.
+- **Pourquoi :** la voie 1 est la plus sûre mais le bureau ne couvre que 25 % des adultes avec près de la moitié des contrats non à jour ; la voie 2 a une base légale vérifiée (art. 389, mesures précontractuelles à la demande de la personne) et constitue un créneau libre dans l'UEMOA selon la question 21, donc la différenciation possible ; la voie 3 ne dépend pas d'un opérateur unique et est déjà empruntée par le concurrent via des agrégateurs. La donnée des opérateurs leur appartient, des acteurs installés l'exploitent, et elle ne s'obtient pas sans partenariat.
+- **À instruire avant le point de décision 2 :** la faisabilité technique de la voie 2 (comment un relevé devient une variable fiable), la question d'identité Q-12, et l'état réel de la voie 3.
+- **Statut :** Validée par Daniela.
+
+---
+
 ## D-005 : Cœur fonctionnel de la V2
 - **Date :** 26/09/2026
 - **Décision :** cœur = scoring d'octroi (PD à 12 mois) et structuration de l'offre (montant, durée, taux selon le profil). Provisionnement du portefeuille (pertes attendues) en extension.
