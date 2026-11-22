@@ -32,9 +32,11 @@ Le détail de l'avancement par axe est dans [00_QUESTIONS_DE_RECHERCHE.md](initi
 |---|---|---|---|---|
 | P1-T1 | Questions de recherche (7 axes, 20 questions) | Daniela | ✅ 06/10 | Validées comme base évolutive |
 | P1-T2 | Glossaire initial | Daniela | ✅ 06/10 | Alimenté au fil de l'étude (D-010) |
-| P1-T3 | Axes A, B, G puis point de décision 1 (périmètre provisoire) | Atelier BMAD + Daniela | ⬜ | D-011 |
+| P1-T3 | Axes A, B, G puis point de décision 1 (périmètre provisoire) | Atelier BMAD + Daniela | ✅ 22/11 | Décisions D-016 à D-020 |
 | P1-T4 | Guide d'entretien terrain | Daniela | ✅ 29/10 | [GUIDE_ENTRETIEN.md](initiative-uemoa-pilote-benin/GUIDE_ENTRETIEN.md) |
-| P1-T5 | Axes E, F, C, D dans le périmètre provisoire | Atelier BMAD + Daniela | ⬜ | |
+| P1-T5a | Recherche « données et accès » (C+E fusionnés) : les 3 voies de D-020, Q-11, Q-12, Q-02 | Atelier BMAD, puis Daniela | 🔄 | La plus déterminante du projet |
+| P1-T5b | Revue de littérature scientifique (axe F réduit) | Atelier BMAD, puis Daniela | ⬜ | |
+| P1-T5c | Axe D, emprunteurs et pratiques réelles | Daniela, terrain | ⬜ | Guide d'entretien prêt. Avance en parallèle, ne bloque pas la P1 |
 | P1-T6 | Synthèse et point de décision 2 (périmètre définitif) | Daniela | ⬜ | Entrée de la P2 |
 | P1-T7 | Post LinkedIn de lancement (appel aux ressources) | Daniela | ⬜ | Publication prévue le 06/10 |
 
@@ -82,7 +84,7 @@ Le détail de l'avancement par axe est dans [00_QUESTIONS_DE_RECHERCHE.md](initi
 
 | Date | Piste | Type | Statut |
 |---|---|---|---|
-| 18 au 20/11/2026 | **Village de l'Innovation, Cotonou.** Présence les 18 et 20/11. Aucun banquier rencontré : la question sur le recul du crédit aux particuliers reste posée. Échange utile avec **Bujeti**, fintech présente au Nigeria et au Kenya, qui arrive au Bénin. Leur réponse sur les commerçantes non bancarisées : au Nigeria le numéro de téléphone est rattaché à un compte bancaire ou mobile, ce qui suffit pour accorder un crédit. Pas encore opérationnels au Bénin. Conseil d'un responsable du ministère : venir en soirée, les professionnels passent après le travail | Terrain | Exploité : voir Q-12. Bujeti à recontacter (crédit aux PME, fondateur béninois) |
+| 18 au 20/11/2026 | **Village de l'Innovation, Cotonou.** Présence les 18 et 20/11. Aucun banquier rencontré : la question sur le recul du crédit aux particuliers reste posée. Échange utile avec **Bujeti**, fintech présente au Nigeria et au Kenya, qui arrive au Bénin. Leur réponse sur les commerçantes non bancarisées : au Nigeria le numéro de téléphone est rattaché à un compte bancaire ou mobile, ce qui suffit pour accorder un crédit. Pas encore opérationnels au Bénin. Conseil d'un responsable du ministère : venir en soirée, les professionnels passent après le travail | Terrain | Exploité : voir Q-12. **Bujeti non prioritaire** (décision du 22/11/2026) : acteur qui s'installe à peine, pas encore la connaissance du marché local. Priorité aux professionnels des institutions financières déjà établies au Bénin |
 | 28/10/2026 | Représentant d'une institution de développement (BAD), rencontré de façon informelle. A expliqué le scoring sur flux mobile money ; co-auteur d'un article avec une entreprise kenyane. **Échange privé : ne jamais citer publiquement, ni la personne, ni l'institution.** | Expert métier | Relance à faire : demander le lien de l'article (prétexte naturel pour rouvrir le contact, puis proposer un entretien) |
 
 ---
