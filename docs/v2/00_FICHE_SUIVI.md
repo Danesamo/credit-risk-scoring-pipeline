@@ -1,8 +1,9 @@
 # Fiche de suivi : V2 Scoring de crédit UEMOA
 
-**Dernière mise à jour :** 05/10/2026
-**Phase en cours :** P1 Étude de contexte
-**Prochaine action :** valider les questions de recherche, puis lancer l'axe A dans le chat atelier
+**Dernière mise à jour :** 17/11/2026
+**Phase en cours :** P1 Étude de contexte, environ aux deux tiers
+**Prochaine action :** point de décision 1, le périmètre provisoire. Les quatre blocs qui l'alimentent sont terminés (axes A, B, G et question 21)
+**Pause :** du 30/10/2026 au 16/11/2026, pour d'autres travaux
 
 ---
 
@@ -65,6 +66,7 @@ Le détail de l'avancement par axe est dans [00_QUESTIONS_DE_RECHERCHE.md](initi
 | Q-01 | Quel maillon de l'écosystème crédit cibler en priorité (banque seule, banque + partenariat mobile money, microfinance/SFD) ? | 25/09/2026 | Point de décision 1 | Ouvert. Axe A : SFD n°1 (besoin), banques n°2. Orientation de travail de Daniela (08/10) : les banques, capables de payer l'outil ; piste d'un cœur commun adaptable aux grandes IMF |
 | Q-08 | Qui paiera l'outil, et quel modèle économique ? (les SFD ont le besoin, les banques ont les moyens) | 08/10/2026 | Point de décision 1 | **Devenue critique.** Vérification du 29/10 [R-006] : au Bénin, le segment visé (particuliers et entreprises individuelles) est passé de 20,1 % à 9,0 % des crédits mis en place entre 2020 et 2025, et recule de 30,1 % sur la seule année 2025, pendant que le crédit total double. Voir [G_PAYS_PILOTE.md](initiative-uemoa-pilote-benin/G_PAYS_PILOTE.md) |
 | Q-09 | Les banques de l'UEMOA disposent-elles déjà d'outils de scoring ou d'aide à l'octroi (internes, éditeurs, scores du bureau de crédit) ? | 08/10/2026 | Recherche dédiée après l'axe B (D-013), puis entretiens | Traité (rapport Q21 du 29/10). Les banques classiques ne documentent aucun scoring statistique pour particuliers et TPE ; le score du bureau de crédit est la seule brique commune, limité (25 % des adultes). Concurrent direct identifié et vérifié : SCORE360, sur le segment PME, sans explicabilité annoncée. **Réserve** : l'acheteur bancaire reste incertain, première question d'entretien |
+| Q-12 | **Existe-t-il au Bénin une couche d'identité qui relie une personne à ses comptes (bancaire, mobile money) à travers plusieurs institutions ?** Au Nigeria, le numéro de téléphone est relié à un compte, ce qui suffit à prêter. Quel est l'équivalent béninois, et quelle est sa couverture réelle ? | 22/11/2026 | Recherche « données et accès » (C+E) | Ouvert. Origine : échange du 18/11 au Village de l'Innovation. Déterminant pour le verrou Q-11 : sans identifiant commun, un relevé apporté par le client ne peut pas être rattaché de façon fiable à son dossier |
 | Q-11 | **Verrou central du projet** : comment un outil destiné à une banque peut-il exploiter des flux mobile money dont l'opérateur est propriétaire, sans partenariat opérateur ? Résoudre ce point fonde l'originalité du travail. | 29/10/2026 | P2 et P3 | Ouvert. Trois voies : (1) relevés fournis par le client avec son consentement exprès, base légale vérifiée (art. 389) et créneau libre dans l'UEMOA selon Q21 ; (2) données propres de la banque ; (3) **flux PI-SPI**, plateforme interopérable de paiement instantané de la BCEAO, voie utilisée par SCORE360 via des agrégateurs partenaires (découverte du 29/10). Voir D-014 |
 | Q-10 | Comment accéder aux données des institutions (outil déployé chez elles sur leurs données, pilote sous accord de confidentialité, démonstrateur sur données synthétiques calibrées) ? | 08/10/2026 | Axe E et P3 | Volet légal traité (axe B) : déploiement chez la banque favorisé, données hébergées dans l'UMOA, contrat soumis à la Commission bancaire, déclaration APDP |
 | Q-02 | Quelle source de données réelle ou réaliste utiliser ? | 25/09/2026 | P3 | Ouvert |
@@ -80,6 +82,7 @@ Le détail de l'avancement par axe est dans [00_QUESTIONS_DE_RECHERCHE.md](initi
 
 | Date | Piste | Type | Statut |
 |---|---|---|---|
+| 18 au 20/11/2026 | **Village de l'Innovation, Cotonou.** Présence les 18 et 20/11. Aucun banquier rencontré : la question sur le recul du crédit aux particuliers reste posée. Échange utile avec **Bujeti**, fintech présente au Nigeria et au Kenya, qui arrive au Bénin. Leur réponse sur les commerçantes non bancarisées : au Nigeria le numéro de téléphone est rattaché à un compte bancaire ou mobile, ce qui suffit pour accorder un crédit. Pas encore opérationnels au Bénin. Conseil d'un responsable du ministère : venir en soirée, les professionnels passent après le travail | Terrain | Exploité : voir Q-12. Bujeti à recontacter (crédit aux PME, fondateur béninois) |
 | 28/10/2026 | Représentant d'une institution de développement (BAD), rencontré de façon informelle. A expliqué le scoring sur flux mobile money ; co-auteur d'un article avec une entreprise kenyane. **Échange privé : ne jamais citer publiquement, ni la personne, ni l'institution.** | Expert métier | Relance à faire : demander le lien de l'article (prétexte naturel pour rouvrir le contact, puis proposer un entretien) |
 
 ---
