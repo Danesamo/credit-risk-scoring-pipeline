@@ -33,6 +33,22 @@ claims_overturned: 0
 
 ---
 
+> # Résultat des tests terrain, 23/11/2026
+>
+> Tests T1, T2 et T3 exécutés sur un compte MTN MoMo réel au Bénin. **Ils infirment la conclusion principale du rapport : la voie 2a est techniquement praticable.** Seuls les constats de structure sont consignés ici. Aucune donnée personnelle, aucun montant, aucun nom de tiers n'est conservé dans le projet.
+>
+> **T1, l'export existe.** Dans l'application MoMo, écran « Relevés », bouton « Obtenir relevés ». L'utilisateur choisit une plage par bouton (7, 30 ou 90 jours) ou par deux champs de dates libres. Le relevé est produit en **PDF**, partageable immédiatement (messagerie, courriel). Aucun coût ni délai constaté. **Profondeur maximale établie le 23/11/2026 : 90 jours, et pas davantage.** Les champs de dates libres n'ouvrent pas au-delà, les dates antérieures étant grisées dans le sélecteur. Un relevé de 90 jours produit le même format, simplement plus long. **C'est la limite structurante de la voie 2a : un client ne peut fournir que les trois derniers mois de son activité.**
+>
+> **T2, le relevé identifie le titulaire et porte les champs utiles.** En-tête : titulaire du compte, numéro de portefeuille, niveau de profil de l'abonné, dates de début et de fin, durée, solde disponible. Chaque opération porte **neuf champs** : date et heure, type de paiement, numéro de la contrepartie, nom du compte de la contrepartie, montant signé, identifiant de transaction, frais, **solde après opération**, référence. Le solde après chaque opération et le sens du flux sont présents : ce sont les deux éléments décisifs pour reconstituer un comportement de paiement.
+>
+> **T3, le PDF est lisible par une machine.** Le texte est sélectionnable et extractible, donc exploitable sans reconnaissance de caractères. **Aucune signature électronique, aucun code QR et aucun numéro de référence du relevé n'ont été constatés**, ce qui laisse entière la question de la falsification relevée par la passe de contradiction.
+>
+> **Deux découvertes non prévues par les tests.**
+> 1. **L'écran « Relevés » affiche des agrégats mensuels calculés par l'opérateur** : argent entrant, argent sortant et solde sur le mois courant. C'est exactement le type de signal recherché, déjà agrégé à la source.
+> 2. **Le service PI-SPI apparaît comme une fonction accessible à l'utilisateur** depuis l'accueil de l'application. Cela nuance la conclusion du volet D3, qui jugeait le PI-SPI réservé aux entreprises clientes d'un participant. À instruire.
+>
+> **Un risque nouveau, à traiter en P2 et P4.** Le relevé contient les **noms des contreparties**, donc des données personnelles de tiers qui n'ont jamais consenti à ce traitement. Un client qui transmet son relevé à sa banque transmet aussi l'identité de toutes les personnes avec qui il a échangé. Au regard du Code du numérique, cela impose au minimum une minimisation (ne conserver que ce qui sert au scoring) et interdit de conserver les noms des tiers.
+
 ## 1. Synthèse
 
 ### Verdict par voie
